@@ -9,6 +9,7 @@ import {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from './src/store/AppProvider';
 import { AppNavigator } from './src/navigation/AppNavigator';
+import { ErrorBoundary } from './src/components/common/ErrorBoundary';
 import { theme } from './src/config/theme';
 import { ActivityIndicator, View } from 'react-native';
 import { colors } from './src/config/colors';
@@ -34,9 +35,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        <AppProvider>
-          <AppNavigator />
-        </AppProvider>
+        <ErrorBoundary>
+          <AppProvider>
+            <AppNavigator />
+          </AppProvider>
+        </ErrorBoundary>
       </PaperProvider>
     </SafeAreaProvider>
   );

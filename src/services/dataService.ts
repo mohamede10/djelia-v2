@@ -915,6 +915,25 @@ export const STORY_CATEGORY_FILTERS: string[] = [
 ];
 
 /**
+ * Normalise une facette de catégorie reçue depuis une navigation.
+ * Les totems d'accueil envoient le pluriel (« Contes »), mais un appel direct
+ * peut fournir le singulier (« Conte ») : les deux formes sont acceptées, et
+ * une valeur inconnue retombe sur « Toutes ».
+ */
+export const resolveCategoryFilter = (value?: string): string => {
+  if (!value) return 'Toutes';
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return 'Toutes';
+  return (
+    STORY_CATEGORY_FILTERS.find(
+      (category) =>
+        category.toLowerCase() === normalized ||
+        category.toLowerCase() === `${normalized}s`
+    ) || 'Toutes'
+  );
+};
+
+/**
  * Récupère la liste des histoires (Firestore avec fallback local instantané)
  */
 export const getStories = async (): Promise<Story[]> => {

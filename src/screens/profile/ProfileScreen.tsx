@@ -36,7 +36,13 @@ export const ProfileScreen = ({ navigation }: any) => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <BogolanPattern opacity={0.05} />
-          <View style={styles.avatarWrapper}>
+          <View
+            style={styles.avatarWrapper}
+            accessible
+            accessibilityLabel={
+              user?.name ? `Photo de profil de ${user.name}` : 'Photo de profil par défaut'
+            }
+          >
             <View style={styles.goldRing} />
             {user?.photoUrl ? (
               <Avatar.Image size={100} source={{ uri: user.photoUrl }} style={styles.avatar} />
@@ -49,7 +55,9 @@ export const ProfileScreen = ({ navigation }: any) => {
               />
             )}
           </View>
-          <Text style={styles.name}>{user?.name || 'Gardien Djelia'}</Text>
+          <Text style={styles.name} accessibilityRole="header">
+            {user?.name || 'Gardien Djelia'}
+          </Text>
           {user?.email ? <Text style={styles.email}>{user.email}</Text> : null}
           <View style={styles.rankBadge}>
             <Text style={styles.rankText}>GARDIEN DU SAVOIR</Text>
@@ -57,17 +65,29 @@ export const ProfileScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.statsRow}>
-          <View style={styles.statItem}>
+          <View
+            style={styles.statItem}
+            accessible
+            accessibilityLabel={`${favorites.length} récit${favorites.length > 1 ? 's' : ''} favori${favorites.length > 1 ? 's' : ''}`}
+          >
             <Text style={styles.statValue}>{favorites.length}</Text>
             <Text style={styles.statLabel}>FAVORIS</Text>
           </View>
           <View style={styles.statDivider} />
-          <View style={styles.statItem}>
+          <View
+            style={styles.statItem}
+            accessible
+            accessibilityLabel={`${languagesCount} langue${languagesCount > 1 ? 's' : ''} de prédilection`}
+          >
             <Text style={styles.statValue}>{languagesCount}</Text>
             <Text style={styles.statLabel}>LANGUES</Text>
           </View>
           <View style={styles.statDivider} />
-          <View style={styles.statItem}>
+          <View
+            style={styles.statItem}
+            accessible
+            accessibilityLabel={`${storyCount} récits dans la bibliothèque`}
+          >
             <Text style={styles.statValue}>{storyCount}</Text>
             <Text style={styles.statLabel}>RÉCITS</Text>
           </View>
@@ -75,30 +95,58 @@ export const ProfileScreen = ({ navigation }: any) => {
 
         <View style={styles.menu}>
           <Text style={styles.sectionTitle}>MON HÉRITAGE</Text>
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Favorites')}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('Favorites')}
+            accessibilityRole="button"
+            accessibilityLabel="Mes récits favoris"
+            accessibilityHint="Ouvre la liste des récits sauvegardés"
+          >
             <MaterialCommunityIcons name="heart-multiple-outline" size={22} color={colors.primary} />
             <Text style={styles.menuText}>Mes récits favoris</Text>
             <MaterialCommunityIcons name="chevron-right" size={20} color={colors.borderDark} />
           </TouchableOpacity>
-          <View style={styles.menuItem}>
+          <View
+            style={styles.menuItem}
+            accessible
+            accessibilityState={{ disabled: true }}
+            accessibilityLabel="Mes badges et titres, bientôt disponible"
+          >
             <MaterialCommunityIcons name="shield-check-outline" size={22} color={colors.textLight} />
             <Text style={[styles.menuText, styles.menuTextMuted]}>Mes badges & titres</Text>
             <Text style={styles.soonTag}>BIENTÔT</Text>
           </View>
           
           <Text style={styles.sectionTitle}>PARAMÈTRES</Text>
-          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EditProfile')}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('EditProfile')}
+            accessibilityRole="button"
+            accessibilityLabel="Modifier mon identité"
+            accessibilityHint="Permet de changer votre nom, votre photo et vos langues préférées"
+          >
             <MaterialCommunityIcons name="account-edit-outline" size={22} color={colors.textMid} />
             <Text style={styles.menuText}>Modifier mon identité</Text>
             <MaterialCommunityIcons name="chevron-right" size={20} color={colors.borderDark} />
           </TouchableOpacity>
-          <View style={styles.menuItem}>
+          <View
+            style={styles.menuItem}
+            accessible
+            accessibilityState={{ disabled: true }}
+            accessibilityLabel="Notifications, bientôt disponible"
+          >
             <MaterialCommunityIcons name="bell-outline" size={22} color={colors.textLight} />
             <Text style={[styles.menuText, styles.menuTextMuted]}>Notifications</Text>
             <Text style={styles.soonTag}>BIENTÔT</Text>
           </View>
 
-          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+          <TouchableOpacity
+            style={styles.logoutBtn}
+            onPress={logout}
+            accessibilityRole="button"
+            accessibilityLabel="Se déconnecter"
+            accessibilityHint="Ferme votre session Djelia"
+          >
             <View style={styles.logoutLine} />
             <Text style={styles.logoutText}>QUITTER LA COUR ROYALE</Text>
             <View style={styles.logoutLine} />

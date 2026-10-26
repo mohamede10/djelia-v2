@@ -12,7 +12,7 @@ type Props = {
   onPress: () => void;
 };
 
-export const StoryCard = ({ story, onPress }: Props) => {
+export const StoryCard = React.memo(function StoryCard({ story, onPress }: Props) {
   const { favorites, toggleFavorite } = useAppContext();
   const isFavorite = favorites.includes(story.id);
   const [imageFailed, setImageFailed] = useState(false);
@@ -28,6 +28,7 @@ export const StoryCard = ({ story, onPress }: Props) => {
       activeOpacity={0.9}
       accessibilityRole="button"
       accessibilityLabel={`${story.title}, ${story.category}, ${story.region}`}
+      accessibilityHint="Ouvre la fiche complète du récit"
     >
       {/* Bordure artisanale à gauche */}
       <View style={styles.accentBorder} />
@@ -76,7 +77,7 @@ export const StoryCard = ({ story, onPress }: Props) => {
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   card: {

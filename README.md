@@ -25,6 +25,8 @@ Ce dépôt contient le **MVP Phase 1** décrit dans le cahier des charges (`cahi
 - Recherche plein texte insensible à la casse, aux accents et au pluriel
 - **Pagination de 20 récits par page** avec défilement infini et bouton
   « Charger plus de récits »
+- **Tirer pour rafraîchir** la recherche et les favoris
+- États vides éditoriaux avec action de sortie (effacer les filtres, explorer les récits)
 - Fiche récit avec lecteur audio intégré (play / pause, ±10 s, vitesse 1x–2x)
 - **Narration de secours par synthèse vocale** (`expo-speech`) pour les récits qui
   n'ont pas encore d'enregistrement de griot
@@ -48,7 +50,13 @@ Ce dépôt contient le **MVP Phase 1** décrit dans le cahier des charges (`cahi
 - Libellés explicites sur les cartes de récit, les favoris, les filtres, le héros
   d'accueil et les boutons de narration
 - Compteur de résultats annoncé aux lecteurs d'écran (`accessibilityLiveRegion`)
+- États vides et menus du profil annoncés avec rôle, libellé et état désactivé
+- Onglets de navigation dotés de libellés dédiés (`tabBarAccessibilityLabel`)
 - Contrastes et tailles de police alignés sur le thème Djelia
+
+### Robustesse
+- **ErrorBoundary** global : toute erreur de rendu affiche un écran de secours
+  en français avec un bouton « Réessayer », sans page blanche
 
 ---
 
@@ -213,6 +221,7 @@ Les règles fournies :
 
 ```
 App.tsx                      Point d'entrée (polices, thème, providers)
+eas.json                     Profils de build EAS (development, preview, production)
 src/
   config/                    Couleurs, thème Paper, Firebase, OAuth
   navigation/                Auth, tabs principaux, stacks par module
@@ -228,7 +237,7 @@ src/
   components/
     audio/                   Lecteur audio, narration vocale de secours
     auth/                    Boutons OAuth Google / Facebook
-    common/                  StoryCard, en-têtes, motifs, skeletons
+    common/                  StoryCard, en-têtes, EmptyState, ErrorBoundary, motifs, skeletons
   services/
     __tests__/               Tests unitaires Jest
     authService.ts           Auth email, profils OAuth, messages d'erreur
@@ -266,6 +275,7 @@ La suite couvre :
 - l'intégrité du catalogue (50 récits, identifiants uniques, champs obligatoires,
   quatre catégories, facettes de filtres) ;
 - la recherche (catégorie, région, ethnie, combinaisons, accents, pluriels) ;
+- la normalisation des facettes de catégorie (singulier, pluriel, valeur inconnue) ;
 - la lecture d'un récit par identifiant ;
 - la validation email / mot de passe et les messages d'erreur Firebase.
 
@@ -306,24 +316,36 @@ site aux URI de redirection OAuth autorisées.
 
 ### 7.3 Android / iOS avec EAS
 
+Le fichier `eas.json` fourni contient trois profils :
+
+| Profil | Usage | Sortie Android |
+| --- | --- | --- |
+| `development` | tests internes rapides | APK |
+| `preview` | recette avec testeurs | APK |
+| `production` | stores | AAB |
+
 ```bash
 npm install -g eas-cli
 eas login
 eas build:configure
 ```
 
-Créer `eas.json` si nécessaire, puis lancer :
+Puis lancer :
 
 ```bash
+eas build --platform android --profile preview
 eas build --platform android --profile production
 eas build --platform ios --profile production
 ```
 
-- Android : build **AAB** pour le Play Store.
+- Android : le profil `production` génère un **AAB** pour le Play Store ; `preview`
+  produit un **APK** installable directement.
 - iOS : build **IPA** pour l'App Store, avec un compte Apple Developer.
+- `autoIncrement` active l'incrément distant de version sur `production`.
 - Ajouter les empreintes SHA-1/SHA-256 Android et l'identifiant de bundle iOS
   dans les consoles Google / Facebook.
-- Configurer les variables `EXPO_PUBLIC_*` dans les *Environment variables* EAS.
+- Configurer les variables `EXPO_PUBLIC_*` dans les *Environment variables* EAS,
+  puis soumettre avec `eas submit --platform android --profile production`.
 
 ### 7.4 Mise en production des contenus
 
@@ -346,10 +368,12 @@ eas build --platform ios --profile production
 - [x] Détail de récit + lecteur audio + narration vocale de secours
 - [x] Pagination de la recherche (20 récits par page)
 - [x] Favoris Firestore + cache local hors-ligne
+- [x] Rafraîchissement manuel (pull-to-refresh) et états vides partagés
 - [x] Profil + édition du nom et des langues
 - [x] Photo de profil (galerie + recadrage, Storage Firebase ou stockage local)
 - [x] Livres : lecteur audio réel + ouverture des PDF
 - [x] Accessibilité de base (libellés, rôles, annonces de résultats)
+- [x] ErrorBoundary global et profils de build EAS (`eas.json`)
 - [x] Tests unitaires des services (Jest)
 - [ ] Validation réelle des parcours OAuth avec des identifiants de production
 - [ ] Enregistrements audio des 50 récits

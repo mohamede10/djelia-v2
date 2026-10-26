@@ -5,6 +5,7 @@ import {
   STORY_REGIONS,
   getStoryById,
   normalizeForSearch,
+  resolveCategoryFilter,
   searchStories,
 } from '../dataService';
 
@@ -75,6 +76,22 @@ describe('normalizeForSearch', () => {
   it('ignore la casse et les accents', () => {
     expect(normalizeForSearch('Nzérékoré')).toBe('nzerekore');
     expect(normalizeForSearch('  BOFFA ')).toBe('  boffa ');
+  });
+});
+
+describe('resolveCategoryFilter', () => {
+  it('accepte le pluriel comme le singulier', () => {
+    expect(resolveCategoryFilter('Contes')).toBe('Contes');
+    expect(resolveCategoryFilter('conte')).toBe('Contes');
+    expect(resolveCategoryFilter('Fables')).toBe('Fables');
+    expect(resolveCategoryFilter('coutume')).toBe('Coutumes');
+    expect(resolveCategoryFilter('PROVERBES')).toBe('Proverbes');
+  });
+
+  it('retombe sur « Toutes » pour une valeur absente ou inconnue', () => {
+    expect(resolveCategoryFilter()).toBe('Toutes');
+    expect(resolveCategoryFilter('   ')).toBe('Toutes');
+    expect(resolveCategoryFilter('Légendes')).toBe('Toutes');
   });
 });
 

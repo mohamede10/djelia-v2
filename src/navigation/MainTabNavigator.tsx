@@ -135,32 +135,50 @@ export const MainTabNavigator = () => {
       <Tab.Screen
         name="Accueil"
         component={HomeStackNavigator}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="book-open-variant" label="Biblio" focused={focused} /> }}
+        options={{
+          tabBarAccessibilityLabel: 'Bibliothèque de récits',
+          tabBarIcon: ({ focused }) => <TabIcon icon="book-open-variant" label="Biblio" focused={focused} />,
+        }}
       />
       <Tab.Screen
         name="DjeliBot"
         component={DjeliBotScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="robot-outline" label="DjeliBot" focused={focused} /> }}
+        options={{
+          tabBarAccessibilityLabel: 'DjeliBot, griot conversationnel',
+          tabBarIcon: ({ focused }) => <TabIcon icon="robot-outline" label="DjeliBot" focused={focused} />,
+        }}
       />
       <Tab.Screen
         name="Langues"
         component={LearnStackNavigator}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="translate" label="Langues" focused={focused} /> }}
+        options={{
+          tabBarAccessibilityLabel: 'Apprentissage des langues',
+          tabBarIcon: ({ focused }) => <TabIcon icon="translate" label="Langues" focused={focused} />,
+        }}
       />
       <Tab.Screen
       name="Livres"
       component={BookStackNavigator}
-      options={{ tabBarIcon: ({ focused }) => <TabIcon icon="book-open-page-variant" label="Livres" focused={focused} /> }}
+      options={{
+        tabBarAccessibilityLabel: 'Bibliothèque de livres',
+        tabBarIcon: ({ focused }) => <TabIcon icon="book-open-page-variant" label="Livres" focused={focused} />,
+      }}
 />
       <Tab.Screen
         name="Boutique"
         component={MarketStackNavigator}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="storefront-outline" label="Marché" focused={focused} /> }}
+        options={{
+          tabBarAccessibilityLabel: 'Marché artisanal',
+          tabBarIcon: ({ focused }) => <TabIcon icon="storefront-outline" label="Marché" focused={focused} />,
+        }}
       />
       <Tab.Screen
         name="ProfilTab"
         component={ProfileStackNavigator}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon icon="account-circle-outline" label="Profil" focused={focused} /> }}
+        options={{
+          tabBarAccessibilityLabel: 'Profil et favoris',
+          tabBarIcon: ({ focused }) => <TabIcon icon="account-circle-outline" label="Profil" focused={focused} />,
+        }}
       />
     </Tab.Navigator>
   );

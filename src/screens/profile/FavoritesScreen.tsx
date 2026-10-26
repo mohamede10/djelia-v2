@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StoryCard } from '../../components/common/StoryCard';
 import { ScreenHeader } from '../../components/common/ScreenHeader';
+import { EmptyState } from '../../components/common/EmptyState';
 import { getStories, Story } from '../../services/dataService';
 import { useAppContext } from '../../store/AppProvider';
 import { colors } from '../../config/colors';
@@ -16,49 +17,83 @@ export const FavoritesScreen = ({ navigation }: Props) => {
   const { favorites } = useAppContext();
   const [favoriteStories, setFavoriteStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
+    try {
       const allStories = await getStories();
-      const filtered = allStories.filter(s => favorites.includes(s.id));
-      setFavoriteStories(filtered);
+      setFavoriteStories(allStories.filter((story) => favorites.includes(story.id)));
+    } catch (error) {
+      console.warn('Favoris Djelia indisponibles :', error);
+      setFavoriteStories([]);
+    } finally {
       setLoading(false);
-    };
-    
-    fetchFavorites();
+      setRefreshing(false);
+    }
   }, [favorites]);
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchFavorites();
+  }, [fetchFavorites]);
+
+  const renderStory = useCallback(
+    ({ item }: { item: Story }) => (
+      <StoryCard
+        story={item}
+        onPress={() =>
+          navigation.navigate('Accueil', { screen: 'StoryDetail', params: { id: item.id } })
+        }
+      />
+    ),
+    [navigation]
+  );
 
   return (
     <View style={styles.container}>
-      <ScreenHeader 
+      <ScreenHeader
         title="Mes Favoris"
         subtitle="Vos histoires et coutumes sauvegardées"
         onBack={() => navigation.goBack()}
       />
-      <FlatList
-        data={favoriteStories}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <StoryCard 
-            story={item} 
-            onPress={() => navigation.navigate('Accueil', { screen: 'StoryDetail', params: { id: item.id } })} 
-          />
-        )}
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={
-          <View style={styles.center}>
-            <Text style={styles.emptyText}>Vous n’avez pas encore de favoris.</Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Ouverture de votre mémoire…</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={favoriteStories}
+          keyExtractor={(item) => item.id}
+          renderItem={renderStory}
+          contentContainerStyle={styles.listContainer}
+          initialNumToRender={6}
+          maxToRenderPerBatch={8}
+          windowSize={7}
+          removeClippedSubviews
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+          ListEmptyComponent={
+            <EmptyState
+              icon="heart-outline"
+              title="Votre mémoire est encore vierge"
+              message="Explorez la bibliothèque et touchez le cœur d’un récit pour le retrouver ici, même hors connexion."
+              actionLabel="EXPLORER LES RÉCITS"
+              onAction={() => navigation.navigate('Accueil')}
+            />
+          }
+        />
+      )}
     </View>
   );
 };
@@ -74,13 +109,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 32,
   },
+  loadingText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
+    color: colors.textLight,
+    marginTop: 14,
+    letterSpacing: 0.5,
+  },
   listContainer: {
     paddingBottom: 24,
     paddingTop: 16,
-  },
-  emptyText: {
-    fontFamily: 'Poppins_400Regular',
-    color: colors.textLight,
-    textAlign: 'center',
+    flexGrow: 1,
   },
 });

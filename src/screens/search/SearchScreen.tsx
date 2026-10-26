@@ -1,9 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import { Searchbar, Text, ActivityIndicator, Chip } from 'react-native-paper';
 import { StoryCard } from '../../components/common/StoryCard';
 import { ScreenHeader } from '../../components/common/ScreenHeader';
-import { searchStories, Story, STORY_REGIONS, STORY_ETHNIC_GROUPS, STORY_CATEGORY_FILTERS } from '../../services/dataService';
+import { EmptyState } from '../../components/common/EmptyState';
+import {
+  searchStories,
+  resolveCategoryFilter,
+  Story,
+  STORY_REGIONS,
+  STORY_ETHNIC_GROUPS,
+  STORY_CATEGORY_FILTERS,
+} from '../../services/dataService';
 import { colors } from '../../config/colors';
 import { BogolanPattern } from '../../components/common/AfricanPattern';
 
@@ -11,20 +26,6 @@ const { height } = Dimensions.get('window');
 
 /** Pagination demandée par le cahier des charges : 20 contenus par page. */
 const PAGE_SIZE = 20;
-
-/**
- * Les totems de l'accueil envoient « Contes », mais un appel direct peut fournir
- * « Conte » : on retombe toujours sur une facette connue du catalogue.
- */
-const resolveCategoryFilter = (value?: string): string => {
-  if (!value) return 'Toutes';
-  const normalized = value.toLowerCase();
-  return (
-    STORY_CATEGORY_FILTERS.find(
-      (category) => category.toLowerCase() === normalized || category.toLowerCase() === `${normalized}s`
-    ) || 'Toutes'
-  );
-};
 
 export const SearchScreen = ({ navigation, route }: any) => {
   const initialCategory = resolveCategoryFilter(route.params?.category);
@@ -36,7 +37,10 @@ export const SearchScreen = ({ navigation, route }: any) => {
   
   const [results, setResults] = useState<Story[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshToken, setRefreshToken] = useState(0);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const manualRefreshRef = useRef(false);
 
   // Synchronise le filtre si l'on arrive depuis un totem de l'accueil.
   useEffect(() => {
@@ -46,33 +50,81 @@ export const SearchScreen = ({ navigation, route }: any) => {
   }, [route.params?.category]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchResults = async () => {
       setLoading(true);
       const regionFilter = selectedRegion === 'Toutes' ? undefined : selectedRegion;
       const ethnieFilter = selectedEthnie === 'Toutes' ? undefined : selectedEthnie;
       const categoryFilter = selectedCategory === 'Toutes' ? undefined : selectedCategory;
-      
-      const data = await searchStories(searchQuery, regionFilter, ethnieFilter, categoryFilter);
-      setResults(data);
-      setVisibleCount(PAGE_SIZE);
-      setLoading(false);
+
+      try {
+        const data = await searchStories(searchQuery, regionFilter, ethnieFilter, categoryFilter);
+        if (cancelled) return;
+        setResults(data);
+        setVisibleCount(PAGE_SIZE);
+      } catch (error) {
+        if (!cancelled) {
+          console.warn('Recherche Djelia indisponible :', error);
+          setResults([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      }
     };
 
-    const delayDebounceFn = setTimeout(() => {
-      fetchResults();
-    }, 500);
+    // Un rafraîchissement manuel est immédiat ; la saisie reste temporisée.
+    const delayDebounceFn = setTimeout(
+      fetchResults,
+      manualRefreshRef.current ? 0 : 500
+    );
+    manualRefreshRef.current = false;
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, selectedRegion, selectedEthnie, selectedCategory]);
+    return () => {
+      cancelled = true;
+      clearTimeout(delayDebounceFn);
+    };
+  }, [searchQuery, selectedRegion, selectedEthnie, selectedCategory, refreshToken]);
 
   const visibleResults = results.slice(0, visibleCount);
   const hasMore = visibleCount < results.length;
+  const hasActiveFilters =
+    searchQuery.trim().length > 0 ||
+    selectedRegion !== 'Toutes' ||
+    selectedEthnie !== 'Toutes' ||
+    selectedCategory !== 'Toutes';
 
   const loadMore = () => {
     if (hasMore) {
       setVisibleCount((count) => Math.min(count + PAGE_SIZE, results.length));
     }
   };
+
+  const handleRefresh = useCallback(() => {
+    manualRefreshRef.current = true;
+    setRefreshing(true);
+    setRefreshToken((token) => token + 1);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedRegion('Toutes');
+    setSelectedEthnie('Toutes');
+    setSelectedCategory('Toutes');
+  }, []);
+
+  const renderStory = useCallback(
+    ({ item }: { item: Story }) => (
+      <StoryCard
+        story={item}
+        onPress={() => navigation.navigate('StoryDetail', { id: item.id })}
+      />
+    ),
+    [navigation]
+  );
 
   return (
     <View style={styles.container}>
@@ -170,21 +222,30 @@ export const SearchScreen = ({ navigation, route }: any) => {
         </View>
       </View>
 
-      {loading ? (
+      {loading && results.length === 0 && !refreshing ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Récolte des récits…</Text>
         </View>
       ) : (
         <FlatList
           data={visibleResults}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <StoryCard 
-              story={item} 
-              onPress={() => navigation.navigate('StoryDetail', { id: item.id })} 
-            />
-          )}
+          renderItem={renderStory}
           contentContainerStyle={styles.listContainer}
+          keyboardShouldPersistTaps="handled"
+          initialNumToRender={6}
+          maxToRenderPerBatch={8}
+          windowSize={7}
+          removeClippedSubviews
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
           onEndReached={loadMore}
           onEndReachedThreshold={0.4}
           ListHeaderComponent={
@@ -207,9 +268,13 @@ export const SearchScreen = ({ navigation, route }: any) => {
             ) : null
           }
           ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Le savoir que vous cherchez n’a pas encore été récolté.</Text>
-            </View>
+            <EmptyState
+              title="Aucun récit trouvé"
+              message="Le savoir que vous cherchez n’a pas encore été récolté. Essayez un autre mot-clé, une autre région ou une autre ethnie."
+              icon="book-search-outline"
+              actionLabel={hasActiveFilters ? 'EFFACER LES FILTRES' : undefined}
+              onAction={hasActiveFilters ? clearFilters : undefined}
+            />
           }
         />
       )}
@@ -289,6 +354,7 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 25,
     paddingTop: 10,
+    flexGrow: 1,
   },
   resultCount: {
     fontFamily: 'Poppins_400Regular',
@@ -317,12 +383,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 40,
   },
-  emptyText: {
-    fontFamily: 'PlayfairDisplay_400Regular',
-    fontSize: 16,
+  loadingText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
     color: colors.textLight,
-    textAlign: 'center',
-    fontStyle: 'italic',
-    lineHeight: 24,
+    marginTop: 14,
+    letterSpacing: 0.5,
   },
 });
