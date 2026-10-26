@@ -118,7 +118,452 @@ Médite ces paroles, mon enfant : elles sont légères à porter et lourdes de s
     imageUrl: 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800',
     likes: 64,
     views: 540,
+  },
+  {
+    id: '6',
+    title: 'Le Tambour de la Forêt Sacrée',
+    category: 'Conte',
+    region: 'Nzérékoré',
+    ethnicGroup: 'Guerzé',
+    content: `Au village de Kpaya, le jeune Kpana passait ses journées à écouter le grand tambour du bois sacré. Il croyait qu'un bon batteur devait frapper plus fort que les autres. Son grand-père, gardien des rythmes, le fit asseoir près de la rivière. « Écoute d'abord, lui dit-il. Le tambour ne crie pas : il répond. » Kpana apprit le battement de la pluie sur les feuilles, le pas du porteur d'eau, le souffle du vent dans les fromagers.
+
+Le jour de la fête des récoltes, le vieux gardien posa les baguettes entre ses mains. Kpana ferma les yeux. Au lieu de frapper, il laissa monter les sons qu'il avait appris. Le tambour parla comme un cœur qui bat, et les danseurs entrèrent dans le cercle sans qu'on les appelle.
+
+Depuis ce jour, on dit à Kpaya que la maîtrise n'est pas dans la force du poignet, mais dans l'écoute qui précède le geste.`,
+    imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',
+    likes: 57,
+    views: 430,
+  },
+  {
+    id: '7',
+    title: 'Le Pêcheur et le Génie du Niger',
+    category: 'Conte',
+    region: 'Siguiri',
+    ethnicGroup: 'Mandingue',
+    content: `À l'aube, Fodé lançait ses filets dans le Niger. Ce matin-là, il remonta un poisson d'argent dont les écailles brillaient comme des pièces de monnaie. « Relâche-moi, souffla le poisson, et le fleuve se souviendra de toi. » Les autres pêcheurs se moquèrent, mais Fodé remit le poisson à l'eau.
+
+Quelques saisons plus tard, la pluie cessa. Les puits séchèrent et les bœufs maigrirent. Fodé retourna au fleuve et appela le génie. Une voix monta des roseaux : « Suis le lit des oiseaux. » Il marcha trois jours et découvrit une source cachée sous les rochers.
+
+Fodé ne garda pas l'eau pour sa famille. Il fit creuser un canal jusqu'au village, et chaque concession reçut sa part. On raconte que le Niger protège encore ceux qui savent rendre ce qu'ils ont reçu.`,
+    imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800',
+    likes: 74,
+    views: 610,
+  },
+  {
+    id: '8',
+    title: 'La Fille qui Parlait aux Oiseaux',
+    category: 'Conte',
+    region: 'Kindia',
+    ethnicGroup: 'Soussou',
+    content: `Aïssatou avait un don : elle comprenait le langage des oiseaux. Les tisserins lui annonçaient la pluie, les hérons les crues, et les vautours les longues sécheresses. Les anciens l'écoutaient avec respect, mais le nouveau chef du canton, lui, ne croyait qu'aux tambours et aux fusils.
+
+Un matin, les oiseaux quittèrent tous ensemble la vallée. Aïssatou courut prévenir : « Une tempête arrive par les montagnes. » On la prit pour une rêveuse. Le soir, le vent arracha les toits et emporta les greniers. Seuls les habitants qui avaient suivi son conseil s'étaient abrités dans la grotte.
+
+Quand le calme revint, les oiseaux rapportèrent des graines dans leurs becs. Le chef comprit que la plus petite voix peut porter le plus grand avertissement. Il nomma Aïssatou gardienne des saisons, et depuis, à Kindia, on apprend aux enfants à écouter avant de décider.`,
+    imageUrl: 'https://images.unsplash.com/photo-1504174604143-53116383966c?w=800',
+    likes: 93,
+    views: 720,
+  },
+  {
+    id: '9',
+    title: 'Le Secret du Forgeron',
+    category: 'Conte',
+    region: 'Kouroussa',
+    ethnicGroup: 'Konianké',
+    content: `Dans la forge de Kouroussa, le vieux Sékou enseignait à son apprenti que le fer a une mémoire. L'apprenti, pressé de se faire un nom, voulait forger une lame assez belle pour être offerte au roi. Il chauffait le métal jusqu'au rouge, frappait sans repos et cachait ses erreurs sous de belles gravures.
+
+Sékou ne dit rien. Il lui demanda seulement de fabriquer une houe pour la veuve du quartier. L'apprenti s'indigna : « Une houe ? Ce n'est pas une arme de gloire ! » Le maître répondit : « Une lame qui ne nourrit personne n'est qu'un morceau de fer brillant. »
+
+L'apprenti forgea la houe. La veuve cultiva son champ, nourrit ses enfants et, à la récolte suivante, apporta au jeune homme un panier de mil. Ce jour-là, il comprit que la vraie renommée se mesure à ce que l'on rend possible.`,
+    imageUrl: 'https://images.unsplash.com/photo-1535941339077-2dd1c7963098?w=800',
+    likes: 66,
+    views: 505,
+  },
+  {
+    id: '10',
+    title: 'Les Deux Frères du Fouta',
+    category: 'Conte',
+    region: 'Mamou',
+    ethnicGroup: 'Peul',
+    content: `Deux frères, Bocar et Amadou, héritèrent d'un troupeau que leur père avait mis trente ans à bâtir. Bocar voulait vendre les bêtes pour acheter des terres au bord du fleuve. Amadou voulait garder le troupeau et suivre les pâturages comme les anciens.
+
+Ils se disputèrent jusqu'à ce que la sécheresse tranche pour eux. L'herbe disparut, et les bêtes risquaient de mourir. Bocar proposa alors de vendre seulement les plus vieilles vaches pour acheter du fourrage ; Amadou conduisit le reste vers la vallée où l'eau demeurait.
+
+Ni l'un ni l'autre n'avait entièrement raison. En unissant leur part, ils sauvèrent le troupeau et firent creuser un puits commun. Le père, avant de mourir, leur avait laissé une seule phrase : « Le troupeau se garde à deux mains, la parole se garde à deux oreilles. »`,
+    imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800',
+    likes: 81,
+    views: 640,
+  },
+  {
+    id: '11',
+    title: 'Le Chasseur de la Montagne',
+    category: 'Conte',
+    region: 'Nzérékoré',
+    ethnicGroup: 'Toma',
+    content: `Le chasseur Kolé était connu dans toute la montagne. Chaque saison, il rapportait plus de gibier que les autres, et les jeunes voulaient marcher sur ses traces. Pourtant, après une année de chasse sans repos, la forêt devint silencieuse. Plus un singe, plus une perdrix, plus un souffle dans les fougères.
+
+Une vieille femme, qui vivait à la lisière du bois, l'appela : « La montagne ne t'en veut pas. Elle attend que tu lui rendes ce que tu as pris. » Kolé déposa son arc et passa une lune entière à observer sans tuer. Il comprit que les jeunes bêtes devaient grandir et que les anciennes devaient transmettre leur chemin.
+
+À son retour, il posa ses propres règles : ne jamais chasser une femelle pleine, laisser les petits, remercier l'arbre qui donne l'ombre. La forêt reprit voix. Et Kolé devint non plus le chasseur le plus redouté, mais le gardien le plus respecté.`,
+    imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',
+    likes: 102,
+    views: 810,
+  },
+  {
+    id: '12',
+    title: 'Le Caméléon et le Baobab',
+    category: 'Fable',
+    region: 'Faranah',
+    ethnicGroup: 'Mandingue',
+    content: `Le caméléon se vantait partout : « Je change de couleur selon le lieu, je me cache dans l'herbe, je disparais dans la pierre. Aucun arbre ne peut me surpasser. » Le baobab l'écoutait sans un mot, ses racines profondes enfoncées dans la terre rouge.
+
+Un orage terrible arriva. Le caméléon se fit vert comme la feuille, puis gris comme le rocher, mais le vent le jeta dans une flaque. Le baobab, lui, plia ses branches et resta debout, parce qu'il tenait par ce qu'on ne voyait pas.
+
+Quand le soleil revint, le caméléon demanda le secret du baobab. « Je ne suis pas plus fort que le vent, répondit l'arbre. Je suis simplement attaché à quelque chose de plus grand que moi. » S'adapter sans racines, c'est être emporté au premier orage.`,
+    imageUrl: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800',
+    likes: 88,
+    views: 690,
+  },
+  {
+    id: '13',
+    title: 'La Tortue et le Vautour',
+    category: 'Fable',
+    region: 'Labé',
+    ethnicGroup: 'Peul',
+    content: `La tortue admirait le vautour qui planait au-dessus du Fouta. « Comme tu es libre ! lui dit-elle. Moi, je porte ma maison et je ne vois jamais le monde d'en haut. » Le vautour, flatté, proposa de l'emmener. Il la saisit entre ses serres et monta si haut que les villages ressemblèrent à des grains de mil.
+
+La tortue, grisée, se moqua des autres animaux restés au sol. « Regardez ces rampants ! » cria-t-elle. Le vautour, blessé par cette ingratitude, ouvrit ses serres. La tortue tomba, tomba, et plongea dans une mare.
+
+Quand elle remonta, couverte de boue, une vieille tortue lui dit : « Tu voulais voir avec les yeux d'un autre. Maintenant, apprends à voir avec les tiens. » La carapace n'est pas une prison : c'est une maison qui voyage avec celui qui sait où il va.`,
+    imageUrl: 'https://images.unsplash.com/photo-1504174604143-53116383966c?w=800',
+    likes: 71,
+    views: 560,
+  },
+  {
+    id: '14',
+    title: 'Le Crocodile Reconnaissant',
+    category: 'Fable',
+    region: 'Boffa',
+    ethnicGroup: 'Landouma',
+    content: `Sur les rives de la Fatala, un jeune garçon trouva un crocodile pris dans un filet abandonné. L'animal gémissait. « Si tu me délivres, je te promets de ne jamais toucher aux enfants de ton village », dit-il. Le garçon coupa les cordes et le crocodile disparut dans l'eau trouble.
+
+Les années passèrent. Le garçon devint pêcheur. Un jour de grande marée, sa pirogue chavira et le courant l'emporta vers les mangroves. Il crut sa dernière heure arrivée lorsqu'une masse sombre glissa sous lui et le poussa doucement vers la berge.
+
+C'était le crocodile. Il n'avait pas oublié. Depuis ce jour, les anciens de Boffa racontent que la reconnaissance est une eau profonde : elle ne fait pas de bruit, mais elle porte ceux qui ont su donner.`,
+    imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+    likes: 64,
+    views: 490,
+  },
+  {
+    id: '15',
+    title: 'Le Singe qui Voulait la Lune',
+    category: 'Fable',
+    region: 'Macenta',
+    ethnicGroup: 'Kissi',
+    content: `Un jeune singe vit la lune se refléter dans le puits du village. Il crut qu'elle était tombée et qu'il pourrait la rapporter aux siens. Il descendit le long des racines, tendit la main, et l'image se brisa en mille éclats d'argent.
+
+Le singe remonta, honteux. « La lune s'est cachée ! » dit-il. Une vieille guenon le conduisit au sommet de la colline. Là, dans le ciel, la lune brillait, entière et paisible. « Ce que tu cherchais était au-dessus de toi, dit-elle. Mais tu regardais trop bas. »
+
+Le jeune singe comprit qu'une illusion peut ressembler à un trésor. Depuis, quand la lune se lève sur Macenta, les anciens rappellent aux enfants : ne confonds pas le reflet avec la lumière.`,
+    imageUrl: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=800',
+    likes: 79,
+    views: 620,
+  },
+  {
+    id: '16',
+    title: 'Le Moustique et l’Oreille',
+    category: 'Fable',
+    region: 'Conakry',
+    ethnicGroup: 'Soussou',
+    content: `Un moustique se posa sur l'épaule d'un homme endormi et se mit à fanfaronner : « Je suis si petit que personne ne peut m'attraper. Je peux entrer dans l'oreille d'un roi sans qu'il s'en aperçoive. » L'oreille, qui entendait tout, lui répondit : « Entre donc. Tu verras que le plus petit bruit peut réveiller le plus grand sommeil. »
+
+Le moustique s'engouffra dans le conduit, bourdonnant de victoire. Mais la cire l'accrocha, et l'homme se réveilla en se grattant. Le moustique resta prisonnier de sa propre vantardise.
+
+À Conakry, on raconte cette histoire aux enfants qui se croient invincibles : la ruse sans mesure finit par se prendre à son propre piège.`,
+    imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800',
+    likes: 43,
+    views: 350,
+  },
+  {
+    id: '17',
+    title: 'L’Araignée et la Pluie',
+    category: 'Fable',
+    region: 'Kissidougou',
+    ethnicGroup: 'Kissi',
+    content: `L'araignée tissait sa toile au-dessus du sentier. Elle voulait attraper la pluie pour la montrer à ses petits. « Une si belle chose ne doit pas tomber n'importe où », disait-elle. Elle tendit ses fils du fromager au manguier, et attendit.
+
+La première averse déchira tout. L'araignée tomba dans la boue, ses huit pattes tremblantes. Au lieu de pleurer, elle observa les branches : le vent avait épargné celles qui pliaient. Elle recommença sa toile plus bas, entre deux troncs souples, avec des ancrages plus larges.
+
+La saison des pluies passa, et sa toile survécut. « La force n'est pas de résister à tout, dit-elle à ses petits, mais de savoir où s'attacher pour ne pas être emporté. »`,
+    imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800',
+    likes: 58,
+    views: 445,
+  },
+  {
+    id: '18',
+    title: 'Les Proverbes du Fleuve',
+    category: 'Proverbe',
+    region: 'Siguiri',
+    ethnicGroup: 'Mandingue',
+    content: `À Siguiri, les anciens s'assoient face au Niger pour transmettre la parole des bateliers. Voici quelques proverbes que l'eau a enseignés aux hommes.
+
+« Le fleuve ne demande pas son chemin à la pirogue. » — Celui qui connaît sa direction n'a pas besoin de suivre toutes les voix.
+
+« L'eau qui dort cache parfois le courant le plus fort. » — Méfie-toi des colères silencieuses.
+
+« On ne traverse pas deux fois le même courant. » — Chaque jour demande un regard neuf.
+
+« La pirogue vide fait plus de bruit que la pirogue chargée. » — La sagesse parle bas.
+
+« Le fleuve donne à boire à celui qui respecte sa berge. » — La nature rend ce qu'on lui confie.
+
+Médite ces paroles au bord de l'eau, et tu entendras le fleuve répondre à ta question.`,
+    imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800',
+    likes: 95,
+    views: 760,
+  },
+  {
+    id: '19',
+    title: 'La Parole des Bergers',
+    category: 'Proverbe',
+    region: 'Mamou',
+    ethnicGroup: 'Peul',
+    content: `Sur les hauteurs du Fouta, les bergers confient leurs leçons au vent du soir. Voici quelques paroles recueillies auprès des anciens.
+
+« La patience est le pâturage de celui qui marche loin. » — Rien de durable ne se bâtit dans la hâte.
+
+« Une seule vache égarée fait oublier tout le troupeau. » — Prends soin du plus fragile, ou le troupeau entier perdra son chemin.
+
+« Le lait se partage, la parole se donne. » — Ce que l'on garde pour soi finit par aigrir.
+
+« L'étranger qui arrive à l'heure du repas est un hôte envoyé par le ciel. » — L'hospitalité n'attend pas la richesse.
+
+« Deux bergers valent mieux qu'un troupeau. » — L'union rend la route moins longue.
+
+Ces proverbes rappellent que le Pulaaku se vit dans les gestes autant que dans les mots.`,
+    imageUrl: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800',
+    likes: 87,
+    views: 680,
+  },
+  {
+    id: '20',
+    title: 'Les Leçons de la Mer',
+    category: 'Proverbe',
+    region: 'Boké',
+    ethnicGroup: 'Nalou',
+    content: `Sur la côte de Boké, les pêcheurs nalou apprennent aux enfants à lire la mer avant de lire les étoiles. Voici leurs paroles.
+
+« La mer ne se fâche pas d'un coup : elle prévient par la vague. » — Écoute les signes avant qu'ils ne deviennent des tempêtes.
+
+« Le sel conserve le poisson et la parole. » — Ce qui est dit avec respect traverse les saisons.
+
+« Un filet trop serré ne laisse rien passer, pas même le poisson de demain. » — La cupidité vide la mer et le cœur.
+
+« La pirogue qui suit la mangrove évite le rocher. » — L'humilité connaît les chemins sûrs.
+
+« On ne remercie pas la mer en lui tournant le dos. » — La gratitude se prouve par les actes.
+
+Le soir, quand les pirogues rentrent, les anciens répètent : la mer nourrit ceux qui la respectent.`,
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+    likes: 76,
+    views: 590,
+  },
+  {
+    id: '21',
+    title: 'La Sagesse des Forgerons',
+    category: 'Proverbe',
+    region: 'Kouroussa',
+    ethnicGroup: 'Konianké',
+    content: `Dans les ateliers de Kouroussa, la parole des forgerons accompagne chaque coup de marteau. En voici quelques-unes.
+
+« Le feu ne se dompte pas avec la colère, mais avec la mesure. » — La maîtrise naît du contrôle de soi.
+
+« Le fer se souvient de la main qui l'a plié. » — Chaque geste laisse une trace dans ce que l'on crée.
+
+« Une lame sans manche blesse celui qui la porte. » — Le savoir sans sagesse devient un danger.
+
+« Le forgeron qui refuse d'apprendre devient l'esclave de son marteau. » — L'orgueil arrête la croissance.
+
+« On reconnaît l'atelier à ses étincelles, l'homme à ses œuvres. » — Les actes parlent plus fort que les promesses.
+
+Ces proverbes rappellent que tout métier est d'abord une école de patience.`,
+    imageUrl: 'https://images.unsplash.com/photo-1535941339077-2dd1c7963098?w=800',
+    likes: 54,
+    views: 410,
+  },
+  {
+    id: '22',
+    title: 'Les Mots de la Nuit',
+    category: 'Proverbe',
+    region: 'Nzérékoré',
+    ethnicGroup: 'Toma',
+    content: `Quand la nuit tombe sur Nzérékoré, les anciens s'assoient autour du feu et laissent parler les étoiles. Voici quelques paroles de la nuit.
+
+« La nuit n'efface pas le chemin, elle apprend à marcher autrement. » — L'épreuve change la manière d'avancer, pas la destination.
+
+« L'étoile la plus discrète guide parfois le voyageur perdu. » — Ne méprise pas les conseils humbles.
+
+« Le silence de la forêt est plus riche que le bruit du marché. » — L'écoute ouvre ce que la parole ferme.
+
+« Celui qui a peur du noir ne verra jamais l'aube. » — Le courage est le prix de la lumière.
+
+« Le rêve du soir se confie au matin. » — Le temps révèle ce que l'émotion cache.
+
+La nuit, disent les Toma, est une maîtresse qui ne parle qu'à ceux qui savent se taire.`,
+    imageUrl: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=800',
+    likes: 91,
+    views: 705,
+  },
+  {
+    id: '23',
+    title: 'Le Dire des Anciens',
+    category: 'Proverbe',
+    region: 'Faranah',
+    ethnicGroup: 'Dialonké',
+    content: `À Faranah, la parole des anciens se transmet autour du kola, avant que le repas ne soit servi. Voici quelques maximes.
+
+« La parole est une semence : elle pousse là où on la dépose. » — Choisis le cœur qui recevra tes mots.
+
+« Deux oreilles valent mieux qu'une bouche. » — Écouter est la première forme du respect.
+
+« Ce que la mémoire oublie, le geste le rappelle. » — Les coutumes sont des souvenirs vivants.
+
+« Un ancien qui meurt, c'est une bibliothèque qui brûle. » — Prends le temps de recueillir les savoirs.
+
+« La vérité se dit doucement ; seul le mensonge a besoin de crier. » — La force n'est pas dans le volume de la voix.
+
+Ces paroles invitent chacun à devenir un passeur, non un simple gardien.`,
+    imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800',
+    likes: 83,
+    views: 645,
+  },
+  {
+    id: '24',
+    title: 'La Cérémonie du Kola',
+    category: 'Coutume',
+    region: 'Kankan',
+    ethnicGroup: 'Mandingue',
+    content: `Dans les villages mandingues de Kankan, la noix de kola accompagne les grandes rencontres. On ne l'offre pas pour nourrir, mais pour ouvrir : elle marque le respect, scelle une réconciliation ou accompagne une demande de mariage.
+
+L'hôte présente la noix à l'aîné, qui la brise et la partage. Chacun en reçoit un éclat, même le plus jeune. La saveur amère qui devient douce au fil de la mastication rappelle que les relations demandent du temps et de la patience.
+
+Aujourd'hui encore, avant une discussion importante, on entend : « Cassons le kola. » Cela signifie : déposons nos différends et parlons avec respect. Ce geste simple transforme une réunion en moment de mémoire partagée.`,
+    imageUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
+    likes: 112,
+    views: 930,
+  },
+  {
+    id: '25',
+    title: 'Le Mariage Peul',
+    category: 'Coutume',
+    region: 'Labé',
+    ethnicGroup: 'Peul',
+    content: `Dans la tradition peule du Fouta, le mariage est une affaire de familles autant que de cœurs. Les premières rencontres se font souvent par l'intermédiaire de proches, qui écoutent les intentions et vérifient que les deux familles se connaissent et se respectent.
+
+Vient ensuite le temps des présents et des bénédictions. Le troupeau, les tissus ou les objets symboliques n'ont pas de prix marchand : ils disent l'engagement et la capacité à prendre soin. Les anciens rappellent aux jeunes que le mariage se construit dans la durée, la fidélité et le partage des responsabilités.
+
+Les pratiques varient selon les villages et évoluent avec les générations. Ce qui demeure, c'est l'idée que deux familles qui s'unissent doivent laisser à chacun sa dignité. Le véritable trousseau, disent les mères, est la patience.`,
+    imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800',
+    likes: 98,
+    views: 790,
+  },
+  {
+    id: '26',
+    title: 'La Danse des Masques',
+    category: 'Coutume',
+    region: 'Nzérékoré',
+    ethnicGroup: 'Guerzé',
+    content: `Dans la région de Nzérékoré, les masques ne sont pas de simples objets de spectacle. Ils appartiennent à des sociétés initiatiques et portent la mémoire des ancêtres. Leur sortie est encadrée par des règles précises : un moment, un lieu, un public, un porteur désigné.
+
+Lors des grandes cérémonies, le danseur avance au rythme des tambours. Ses pas racontent une histoire que les initiés reconnaissent : la fertilité, la protection, la justice ou le passage d'une génération à l'autre. Le masque n'est jamais « joué » pour divertir un visiteur ; il est honoré.
+
+Aujourd'hui, certaines danses sont présentées lors de festivals culturels, avec l'accord des communautés. Les anciens insistent : regarder un masque, c'est accepter de ne pas tout comprendre. Le respect fait partie de la danse.`,
+    imageUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
+    likes: 134,
+    views: 1100,
+  },
+  {
+    id: '27',
+    title: 'La Pêche Collective',
+    category: 'Coutume',
+    region: 'Boké',
+    ethnicGroup: 'Landouma',
+    content: `À marée basse, sur les rives de Boké, les communautés landouma se rassemblent pour la pêche collective. Les anciens choisissent le jour, les femmes préparent les paniers, les jeunes ferment la lagune avec des filets et des branchages.
+
+Chacun participe selon ses forces, et la récolte est partagée : une part pour les pêcheurs, une pour les familles, une pour les anciens et les personnes vulnérables. Personne ne repart les mains vides. Les règles sont simples : ne pas capturer les jeunes poissons, laisser les zones de reproduction tranquilles, remercier la mangrove qui protège la côte.
+
+Cette pratique n'est pas seulement une technique de survie. C'est une école de solidarité et de gestion durable. La mer, disent les anciens, ne se donne jamais à un seul homme.`,
+    imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+    likes: 77,
+    views: 600,
+  },
+  {
+    id: '28',
+    title: 'Le Pilage du Riz',
+    category: 'Coutume',
+    region: 'Kindia',
+    ethnicGroup: 'Soussou',
+    content: `Dans les villages de Kindia, le pilage du riz rassemble les femmes au petit matin. Le riz a trempé toute la nuit ; les mortiers de bois sont alignés sous le manguier. Chaque geste a son rythme, et les pilons frappent ensemble comme un tambour.
+
+Les chants accompagnent le travail. Ils racontent les récoltes, les mariages, les naissances et parfois les peines qu'on ne peut dire autrement. Une jeune fille apprend en regardant : la force ne suffit pas, il faut la mesure, la coordination et le respect du rythme des autres.
+
+Le riz pilé est partagé entre les familles. Ce jour-là, personne ne cuisine seul. Le pilage rappelle que le travail collectif nourrit le village, et que les tâches les plus ordinaires portent la mémoire de ceux qui les ont accomplies avant nous.`,
+    imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800',
+    likes: 105,
+    views: 840,
+  },
+  {
+    id: '29',
+    title: 'La Fête des Récoltes',
+    category: 'Coutume',
+    region: 'Macenta',
+    ethnicGroup: 'Kissi',
+    content: `Quand les premiers épis de riz jaunissent, les villages kissi de Macenta préparent la fête des récoltes. On nettoie les chemins, on répare les tambours et on invite les voisins. La première gerbe n'est pas vendue : elle est offerte aux ancêtres et aux plus âgés.
+
+La fête commence par les remerciements. Les anciens rappellent les pluies difficiles, les semences partagées, les mains qui ont travaillé. Puis viennent les danses, les chants et le repas commun. Les enfants reçoivent une part symbolique pour apprendre que la nourriture est un don, non un dû.
+
+À la fin, chacun repart avec des semences pour la saison suivante. La fête ne célèbre pas seulement l'abondance : elle prépare la suite. Une récolte se partage, dit-on, pour que la prochaine existe.`,
+    imageUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800',
+    likes: 89,
+    views: 700,
+  },
+  {
+    id: '30',
+    title: 'Le Respect de l’Hôte',
+    category: 'Coutume',
+    region: 'Conakry',
+    ethnicGroup: 'Soussou',
+    content: `À Conakry, la tradition d'hospitalité a pris les couleurs de la ville. On n'offre plus toujours la noix de kola, mais on offre de l'eau, un siège, un repas, et surtout du temps. Le premier devoir de l'hôte est de faire sentir à l'arrivant qu'il est attendu.
+
+Les salutations occupent une place centrale : on demande des nouvelles de la famille, du travail, de la santé, avant d'aborder le sujet de la visite. Brûler ces étapes, c'est traiter la personne comme une formalité. Les anciens disent que la parole qui va droit au but oublie souvent le cœur.
+
+Dans les quartiers, cette hospitalité se vit aussi entre voisins : on partage un plat, on garde un enfant, on aide à porter. La ville change les maisons, pas la leçon : celui qui accueille bien reçoit toujours quelque chose en retour.`,
+    imageUrl: 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800',
+    likes: 118,
+    views: 960,
   }
+];
+
+/**
+ * Facettes dérivées du catalogue : elles alimentent les filtres de recherche
+ * sans liste codée en dur, pour supporter l'ajout de nouveaux récits.
+ */
+const uniqueSorted = (values: string[]): string[] =>
+  Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, 'fr'));
+
+export const STORY_REGIONS: string[] = [
+  'Toutes',
+  ...uniqueSorted(INITIAL_STORIES.map((story) => story.region)),
+];
+
+export const STORY_ETHNIC_GROUPS: string[] = [
+  'Toutes',
+  ...uniqueSorted(INITIAL_STORIES.map((story) => story.ethnicGroup)),
+];
+
+export const STORY_CATEGORY_FILTERS: string[] = [
+  'Toutes',
+  ...uniqueSorted(INITIAL_STORIES.map((story) => `${story.category}s`)),
 ];
 
 /**
@@ -285,17 +730,22 @@ export const toggleFavoriteRecord = async (userId: string, storyId: string, curr
 };
 
 /**
- * Alimentation initiale (Seed) de Firestore avec les récits culturels authentiques de Guinée
+ * Alimentation initiale (Seed) de Firestore avec les récits culturels authentiques de Guinée.
+ * Seuls les récits absents sont ajoutés : un contenu existant (même modifié par un
+ * administrateur) n'est jamais écrasé.
  */
 export const seedInitialStoriesToFirestore = async (): Promise<void> => {
   if (!isFirebaseConfigured) return;
   try {
     const storiesCol = collection(db, 'stories');
     const existing = await getDocs(storiesCol);
-    // On ne réécrit jamais une bibliothèque déjà alimentée.
-    if (!existing.empty) return;
+    const existingIds = new Set<string>();
+    existing.forEach((docSnap) => existingIds.add(docSnap.id));
 
-    for (const story of INITIAL_STORIES) {
+    const missingStories = INITIAL_STORIES.filter((story) => !existingIds.has(story.id));
+    if (missingStories.length === 0) return;
+
+    for (const story of missingStories) {
       const { id, ...data } = story;
       const cleanData = {
         ...data,

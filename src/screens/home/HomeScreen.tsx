@@ -10,6 +10,9 @@ import { SkeletonHero, SkeletonCard } from '../../components/common/Skeleton';
 
 const { height } = Dimensions.get('window');
 
+/** Nombre de récits affichés sur l'accueil avant de renvoyer vers la recherche. */
+const ARCHIVE_PREVIEW_COUNT = 6;
+
 type Props = {
   navigation: NativeStackNavigationProp<any>;
 };
@@ -68,6 +71,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     stories.length > 0 ? Math.floor(Date.now() / 86_400_000) % stories.length : 0;
   const featuredStory = stories[featuredIndex];
   const otherStories = stories.filter((_, index) => index !== featuredIndex);
+  const previewStories = otherStories.slice(0, ARCHIVE_PREVIEW_COUNT);
 
   return (
     <View style={styles.container}>
@@ -159,13 +163,24 @@ export const HomeScreen = ({ navigation }: Props) => {
         {/* SECTION : DERNIÈRES ACQUISITIONS */}
         <View style={styles.librarySection}>
           <Text style={styles.sectionTitle}>ARCHIVES RÉCENTES</Text>
-          {otherStories.map(item => (
+          {previewStories.map(item => (
             <StoryCard 
               key={item.id}
               story={item} 
               onPress={() => navigation.navigate('StoryDetail', { id: item.id })} 
             />
           ))}
+
+          {otherStories.length > ARCHIVE_PREVIEW_COUNT && (
+            <TouchableOpacity
+              style={styles.exploreButton}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('Search')}
+            >
+              <Text style={styles.exploreButtonText}>EXPLORER TOUTE LA BIBLIOTHÈQUE</Text>
+              <MaterialCommunityIcons name="arrow-right" size={16} color={colors.white} />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.footerSpacer} />
@@ -377,6 +392,22 @@ const styles = StyleSheet.create({
   },
   librarySection: {
     marginTop: 10,
+  },
+  exploreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginHorizontal: 25,
+    marginTop: 10,
+    paddingVertical: 16,
+    backgroundColor: colors.indigo,
+  },
+  exploreButtonText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 10,
+    color: colors.white,
+    letterSpacing: 2,
   },
   footerSpacer: {
     height: 60,

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../config/colors';
 import { Story } from '../../services/dataService';
 import { useAppContext } from '../../store/AppProvider';
@@ -13,6 +14,11 @@ type Props = {
 export const StoryCard = ({ story, onPress }: Props) => {
   const { favorites, toggleFavorite } = useAppContext();
   const isFavorite = favorites.includes(story.id);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [story.id]);
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
@@ -20,10 +26,21 @@ export const StoryCard = ({ story, onPress }: Props) => {
       <View style={styles.accentBorder} />
       
       <View style={[styles.imageContainer, { backgroundColor: colors.surfaceWarm }]}>
-        <Image 
-          source={{ uri: story.imageUrl }} 
-          style={styles.image} 
-        />
+        {imageFailed ? (
+          <View style={styles.imageFallback}>
+            <MaterialCommunityIcons
+              name="book-open-page-variant-outline"
+              size={34}
+              color={colors.gold}
+            />
+          </View>
+        ) : (
+          <Image 
+            source={{ uri: story.imageUrl }} 
+            style={styles.image} 
+            onError={() => setImageFailed(true)}
+          />
+        )}
         <TouchableOpacity 
           style={styles.favoriteButton} 
           onPress={() => toggleFavorite(story.id)}
@@ -73,6 +90,11 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  imageFallback: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   favoriteButton: {
     position: 'absolute',

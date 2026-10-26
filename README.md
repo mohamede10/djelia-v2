@@ -109,8 +109,9 @@ Expo, ou dans `app.json` sous `expo.extra`.
 | `favorites` | `userId`, `storyId`, `createdAt` (document id : `${userId}_${storyId}`) |
 | `products` | artisanat (Phase 2) |
 
-Les 5 récits de démonstration sont injectés automatiquement dans `stories` au premier
-lancement, uniquement si la collection est vide.
+Les 30 récits de démonstration (8 contes, 7 fables, 7 proverbes et 8 coutumes)
+sont injectés automatiquement dans `stories` au lancement. Le seed est incrémental :
+seuls les récits absents sont ajoutés, les documents existants ne sont jamais écrasés.
 
 ### Règles de sécurité
 
@@ -173,6 +174,7 @@ storage.rules                Règles Storage
 - [x] Splash animé, onboarding 3 écrans, persistance de l'onboarding
 - [x] Authentification email / mot de passe + réinitialisation
 - [x] Bibliothèque (contes, fables, proverbes, coutumes) + recherche et filtres
+- [x] Catalogue de 30 contenus culturels (objectif : 50)
 - [x] Détail de récit + lecteur audio
 - [x] Favoris Firestore + cache local hors-ligne
 - [x] Profil + édition du nom et des langues
@@ -188,7 +190,11 @@ storage.rules                Règles Storage
 
 ## 8. Limites connues
 
-- Les données de démonstration comptent 5 récits ; l'objectif MVP est de 50.
+- Les données de démonstration comptent 30 récits sur les 50 visés. Les récits
+  ajoutés au-delà du socle initial sont des adaptations éditoriales de démonstration :
+  ils doivent être relus et validés par des spécialistes culturels avant production.
+  Les images distantes sont illustratives et remplacées par un visuel de secours si
+  elles ne se chargent pas.
 - DjeliBot utilise un moteur de réponses local en attendant un modèle IA.
 - Les modules Livres et Marché restent des maquettes (catalogue fictif) : les PDF
   s'ouvrent dans le lecteur externe de l'appareil, le paiement n'est pas encore branché.

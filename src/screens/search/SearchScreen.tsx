@@ -3,18 +3,28 @@ import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Searchbar, Text, ActivityIndicator, Chip } from 'react-native-paper';
 import { StoryCard } from '../../components/common/StoryCard';
 import { ScreenHeader } from '../../components/common/ScreenHeader';
-import { searchStories, Story } from '../../services/dataService';
+import { searchStories, Story, STORY_REGIONS, STORY_ETHNIC_GROUPS, STORY_CATEGORY_FILTERS } from '../../services/dataService';
 import { colors } from '../../config/colors';
 import { BogolanPattern } from '../../components/common/AfricanPattern';
 
 const { height } = Dimensions.get('window');
 
-const REGIONS = ['Toutes', 'Kankan', 'Labé', 'Nzérékoré', 'Conakry'];
-const ETHNIES = ['Toutes', 'Mandingue', 'Peul', 'Soussou', 'Baga'];
-const CATEGORIES = ['Toutes', 'Contes', 'Fables', 'Proverbes', 'Coutumes'];
+/**
+ * Les totems de l'accueil envoient « Contes », mais un appel direct peut fournir
+ * « Conte » : on retombe toujours sur une facette connue du catalogue.
+ */
+const resolveCategoryFilter = (value?: string): string => {
+  if (!value) return 'Toutes';
+  const normalized = value.toLowerCase();
+  return (
+    STORY_CATEGORY_FILTERS.find(
+      (category) => category.toLowerCase() === normalized || category.toLowerCase() === `${normalized}s`
+    ) || 'Toutes'
+  );
+};
 
 export const SearchScreen = ({ navigation, route }: any) => {
-  const initialCategory = route.params?.category || 'Toutes';
+  const initialCategory = resolveCategoryFilter(route.params?.category);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('Toutes');
@@ -27,7 +37,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
   // Synchronise le filtre si l'on arrive depuis un totem de l'accueil.
   useEffect(() => {
     if (route.params?.category) {
-      setSelectedCategory(route.params.category);
+      setSelectedCategory(resolveCategoryFilter(route.params.category));
     }
   }, [route.params?.category]);
 
@@ -87,7 +97,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={CATEGORIES}
+            data={STORY_CATEGORY_FILTERS}
             keyExtractor={item => item}
             renderItem={({ item }) => (
               <Chip
@@ -106,7 +116,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={REGIONS}
+            data={STORY_REGIONS}
             keyExtractor={item => item}
             renderItem={({ item }) => (
               <Chip
@@ -125,7 +135,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={ETHNIES}
+            data={STORY_ETHNIC_GROUPS}
             keyExtractor={item => item}
             renderItem={({ item }) => (
               <Chip
