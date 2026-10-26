@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
+import { View, StyleSheet, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import { Searchbar, Text, ActivityIndicator, Chip } from 'react-native-paper';
 import { StoryCard } from '../../components/common/StoryCard';
 import { ScreenHeader } from '../../components/common/ScreenHeader';
@@ -8,6 +8,9 @@ import { colors } from '../../config/colors';
 import { BogolanPattern } from '../../components/common/AfricanPattern';
 
 const { height } = Dimensions.get('window');
+
+/** Pagination demandée par le cahier des charges : 20 contenus par page. */
+const PAGE_SIZE = 20;
 
 /**
  * Les totems de l'accueil envoient « Contes », mais un appel direct peut fournir
@@ -33,6 +36,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
   
   const [results, setResults] = useState<Story[]>([]);
   const [loading, setLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   // Synchronise le filtre si l'on arrive depuis un totem de l'accueil.
   useEffect(() => {
@@ -50,6 +54,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
       
       const data = await searchStories(searchQuery, regionFilter, ethnieFilter, categoryFilter);
       setResults(data);
+      setVisibleCount(PAGE_SIZE);
       setLoading(false);
     };
 
@@ -59,6 +64,15 @@ export const SearchScreen = ({ navigation, route }: any) => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, selectedRegion, selectedEthnie, selectedCategory]);
+
+  const visibleResults = results.slice(0, visibleCount);
+  const hasMore = visibleCount < results.length;
+
+  const loadMore = () => {
+    if (hasMore) {
+      setVisibleCount((count) => Math.min(count + PAGE_SIZE, results.length));
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -90,6 +104,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
           iconColor={colors.gold}
           placeholderTextColor={colors.textLight}
           inputStyle={styles.searchInput}
+          accessibilityLabel="Rechercher un récit"
         />
 
         <View style={styles.filtersContainer}>
@@ -105,6 +120,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
                 onPress={() => setSelectedCategory(item)}
                 style={[styles.chip, selectedCategory === item && styles.chipSelected]}
                 textStyle={[styles.chipText, selectedCategory === item && styles.chipTextSelected]}
+                accessibilityLabel={`Filtrer par catégorie ${item}`}
               >
                 {item.toUpperCase()}
               </Chip>
@@ -124,6 +140,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
                 onPress={() => setSelectedRegion(item)}
                 style={[styles.chip, selectedRegion === item && styles.chipSelected]}
                 textStyle={[styles.chipText, selectedRegion === item && styles.chipTextSelected]}
+                accessibilityLabel={`Filtrer par région ${item}`}
               >
                 {item.toUpperCase()}
               </Chip>
@@ -143,6 +160,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
                 onPress={() => setSelectedEthnie(item)}
                 style={[styles.chip, selectedEthnie === item && styles.chipSelected]}
                 textStyle={[styles.chipText, selectedEthnie === item && styles.chipTextSelected]}
+                accessibilityLabel={`Filtrer par ethnie ${item}`}
               >
                 {item.toUpperCase()}
               </Chip>
@@ -158,7 +176,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
         </View>
       ) : (
         <FlatList
-          data={results}
+          data={visibleResults}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <StoryCard 
@@ -167,6 +185,27 @@ export const SearchScreen = ({ navigation, route }: any) => {
             />
           )}
           contentContainerStyle={styles.listContainer}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.4}
+          ListHeaderComponent={
+            results.length > 0 ? (
+              <Text style={styles.resultCount} accessibilityLiveRegion="polite">
+                {results.length} récit{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}
+              </Text>
+            ) : null
+          }
+          ListFooterComponent={
+            hasMore ? (
+              <TouchableOpacity
+                style={styles.loadMoreButton}
+                onPress={loadMore}
+                accessibilityRole="button"
+                accessibilityLabel="Charger les récits suivants"
+              >
+                <Text style={styles.loadMoreText}>CHARGER PLUS DE RÉCITS</Text>
+              </TouchableOpacity>
+            ) : null
+          }
           ListEmptyComponent={
             <View style={styles.center}>
               <Text style={styles.emptyText}>Le savoir que vous cherchez n’a pas encore été récolté.</Text>
@@ -250,6 +289,27 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 25,
     paddingTop: 10,
+  },
+  resultCount: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: colors.textLight,
+    marginBottom: 16,
+    letterSpacing: 0.5,
+  },
+  loadMoreButton: {
+    marginTop: 10,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.indigo,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  loadMoreText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 10,
+    color: colors.indigo,
+    letterSpacing: 2,
   },
   center: {
     flex: 1,

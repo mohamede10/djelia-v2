@@ -9,6 +9,9 @@ import {
   resetUserPassword, 
   updateUserProfileData,
   fetchUserProfile,
+  loginWithGoogleIdToken,
+  loginWithFacebookAccessToken,
+  loginWithSocialDemo as loginWithSocialDemoService,
 } from '../services/authService';
 import { 
   fetchUserFavorites, 
@@ -23,6 +26,9 @@ type AppContextType = {
   favorites: string[];
   login: (email: string, pass: string) => Promise<void>;
   signup: (name: string, email: string, pass: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
+  loginWithFacebook: (accessToken: string) => Promise<void>;
+  loginWithSocialDemo: (provider: 'Google' | 'Facebook') => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
@@ -130,6 +136,42 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    setIsLoading(true);
+    try {
+      const profile = await loginWithGoogleIdToken(idToken);
+      setUser(profile);
+      setFavorites(await fetchUserFavorites(profile.id));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithFacebook = async (accessToken: string) => {
+    setIsLoading(true);
+    try {
+      const profile = await loginWithFacebookAccessToken(accessToken);
+      setUser(profile);
+      setFavorites(await fetchUserFavorites(profile.id));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithSocialDemo = async (provider: 'Google' | 'Facebook') => {
+    setIsLoading(true);
+    try {
+      const profile = await loginWithSocialDemoService(provider);
+      setUser(profile);
+      if (!isFirebaseConfigured) {
+        await writeLocalUser(profile);
+      }
+      setFavorites(await fetchUserFavorites(profile.id));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     setIsLoading(true);
     try {
@@ -173,6 +215,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         favorites, 
         login, 
         signup, 
+        loginWithGoogle,
+        loginWithFacebook,
+        loginWithSocialDemo,
         logout, 
         resetPassword, 
         updateProfile, 

@@ -12,6 +12,7 @@ import { colors } from '../../config/colors';
 import { BogolanPattern, DjeliaLogo } from '../../components/common/AfricanPattern';
 import { useAppContext } from '../../store/AppProvider';
 import { getFirebaseAuthErrorMessage, validatePassword } from '../../services/authService';
+import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons';
 
 export const SignupScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -190,7 +191,20 @@ export const SignupScreen = ({ navigation }: any) => {
             CRÉER MON COMPTE
           </Button>
 
-          <TouchableOpacity style={styles.loginLink} onPress={() => navigation.goBack()}>
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>ou continuer avec</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <SocialAuthButtons />
+
+          <TouchableOpacity
+            style={[styles.loginLink, styles.loginLinkSpaced]}
+            onPress={() => navigation.goBack()}
+            accessibilityRole="button"
+            accessibilityLabel="Revenir à la connexion"
+          >
             <Text style={styles.linkText}>
               Déjà un compte ?{' '}
               <Text style={styles.linkBold}>Se connecter</Text>
@@ -312,9 +326,28 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     fontSize: 13,
   },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 28,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  dividerText: {
+    marginHorizontal: 14,
+    color: colors.textLight,
+    fontFamily: 'Poppins_300Light',
+    fontSize: 13,
+  },
   loginLink: {
     alignItems: 'center',
     marginTop: 24,
+  },
+  loginLinkSpaced: {
+    marginTop: 32,
   },
   linkText: {
     color: colors.textMid,

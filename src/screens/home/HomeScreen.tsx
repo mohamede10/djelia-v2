@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Image, Dimensions, Animated } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StoryCard } from '../../components/common/StoryCard';
@@ -111,8 +112,16 @@ export const HomeScreen = ({ navigation }: Props) => {
               activeOpacity={0.9}
               onPress={() => navigation.navigate('StoryDetail', { id: featuredStory.id })}
               style={styles.heroCard}
+              accessibilityRole="button"
+              accessibilityLabel={`Découvrir ${featuredStory.title}, récit du jour`}
             >
-              <Image source={{ uri: featuredStory.imageUrl }} style={styles.heroImage} />
+              <Image
+                source={{ uri: featuredStory.imageUrl }}
+                style={styles.heroImage}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={250}
+              />
               <View style={styles.heroOverlay} />
               <View style={styles.goldBorder} />
               <View style={styles.heroContent}>
@@ -146,6 +155,8 @@ export const HomeScreen = ({ navigation }: Props) => {
                   { height: index % 2 === 0 ? 180 : 140, marginTop: index % 2 === 0 ? 0 : 20 }
                 ]}
                 onPress={() => navigation.navigate('Search', { category: cat.name })}
+                accessibilityRole="button"
+                accessibilityLabel={`Explorer la catégorie ${cat.name}`}
               >
                 <View style={[styles.shieldCard, { backgroundColor: cat.color }]}>
                   <View style={styles.shieldGlow} />
@@ -176,6 +187,8 @@ export const HomeScreen = ({ navigation }: Props) => {
               style={styles.exploreButton}
               activeOpacity={0.85}
               onPress={() => navigation.navigate('Search')}
+              accessibilityRole="button"
+              accessibilityLabel="Explorer toute la bibliothèque"
             >
               <Text style={styles.exploreButtonText}>EXPLORER TOUTE LA BIBLIOTHÈQUE</Text>
               <MaterialCommunityIcons name="arrow-right" size={16} color={colors.white} />

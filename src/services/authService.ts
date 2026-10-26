@@ -4,6 +4,10 @@ import {
   signOut, 
   sendPasswordResetEmail,
   updateProfile,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  signInWithCredential,
+  User,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '../config/firebase';
@@ -174,6 +178,103 @@ export const loginUser = async (email: string, pass: string): Promise<UserProfil
       role: 'user',
     };
   }
+};
+
+/**
+ * Crée ou met à jour le profil Firestore d'un utilisateur OAuth.
+ * Le profil Auth reste la source de vérité pour l'identité.
+ */
+const syncSocialProfile = async (fbUser: User): Promise<UserProfile> => {
+  const userDocRef = doc(db, 'users', fbUser.uid);
+  const userSnap = await getDoc(userDocRef);
+  const fallbackName =
+    fbUser.displayName || fbUser.email?.split('@')[0] || 'Voyageur Djelia';
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    const profile: UserProfile = {
+      id: fbUser.uid,
+      name: data.name || fallbackName,
+      email: data.email || fbUser.email || '',
+      photoUrl: data.photoUrl || fbUser.photoURL || undefined,
+      preferredLanguages: data.preferredLanguages || ['Mandingue', 'Pular', 'Soussou'],
+      role: data.role || 'user',
+    };
+    await setDoc(
+      userDocRef,
+      {
+        ...profile,
+        photoUrl: profile.photoUrl || null,
+        lastLoginAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+    return profile;
+  }
+
+  const profile: UserProfile = {
+    id: fbUser.uid,
+    name: fallbackName,
+    email: fbUser.email || '',
+    photoUrl: fbUser.photoURL || undefined,
+    preferredLanguages: ['Mandingue', 'Pular', 'Soussou'],
+    role: 'user',
+  };
+  await setDoc(
+    userDocRef,
+    {
+      ...profile,
+      photoUrl: profile.photoUrl || null,
+      createdAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+  return profile;
+};
+
+/**
+ * Connexion Google via un ID token obtenu par expo-auth-session.
+ */
+export const loginWithGoogleIdToken = async (idToken: string): Promise<UserProfile> => {
+  if (!isFirebaseConfigured) {
+    throw new Error('La connexion Google nécessite une configuration Firebase.');
+  }
+  if (!idToken) {
+    throw new Error('Jeton Google introuvable. Veuillez réessayer.');
+  }
+  const credential = GoogleAuthProvider.credential(idToken);
+  const userCredential = await signInWithCredential(auth, credential);
+  return syncSocialProfile(userCredential.user);
+};
+
+/**
+ * Connexion Facebook via un access token obtenu par expo-auth-session.
+ */
+export const loginWithFacebookAccessToken = async (accessToken: string): Promise<UserProfile> => {
+  if (!isFirebaseConfigured) {
+    throw new Error('La connexion Facebook nécessite une configuration Firebase.');
+  }
+  if (!accessToken) {
+    throw new Error('Jeton Facebook introuvable. Veuillez réessayer.');
+  }
+  const credential = FacebookAuthProvider.credential(accessToken);
+  const userCredential = await signInWithCredential(auth, credential);
+  return syncSocialProfile(userCredential.user);
+};
+
+/**
+ * Simulation de connexion sociale en mode démo (sans Firebase).
+ * Elle permet de tester le parcours UI sans créer de faux compte distant.
+ */
+export const loginWithSocialDemo = async (provider: 'Google' | 'Facebook'): Promise<UserProfile> => {
+  return {
+    id: 'local_user',
+    name: `Invité ${provider}`,
+    email: `demo.${provider.toLowerCase()}@djelia.gn`,
+    preferredLanguages: ['Mandingue', 'Pular', 'Soussou'],
+    role: 'user',
+  };
 };
 
 /**

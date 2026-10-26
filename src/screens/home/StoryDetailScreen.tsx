@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import { Text, ActivityIndicator, Chip, IconButton } from 'react-native-paper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getStoryById, Story } from '../../services/dataService';
 import { AudioPlayer } from '../../components/audio/AudioPlayer';
+import { SpeechNarration } from '../../components/audio/SpeechNarration';
 import { useAppContext } from '../../store/AppProvider';
 import { colors } from '../../config/colors';
 
@@ -18,6 +21,7 @@ export const StoryDetailScreen = ({ route, navigation }: Props) => {
   const { id } = route.params as { id: string };
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
+  const [coverFailed, setCoverFailed] = useState(false);
   const { favorites, toggleFavorite } = useAppContext();
 
   const handleToggleFavorite = (storyId: string) => {
@@ -46,20 +50,38 @@ export const StoryDetailScreen = ({ route, navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Image source={{ uri: story.imageUrl }} style={styles.coverImage} />
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, !story.audioUrl && styles.scrollContentWithNarration]}
+        showsVerticalScrollIndicator={false}
+      >
+        {coverFailed ? (
+          <View style={[styles.coverImage, styles.coverFallback]}>
+            <MaterialCommunityIcons name="book-open-page-variant-outline" size={56} color={colors.gold} />
+          </View>
+        ) : (
+          <Image
+            source={{ uri: story.imageUrl }}
+            style={styles.coverImage}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={250}
+            onError={() => setCoverFailed(true)}
+            accessibilityIgnoresInvertColors
+          />
+        )}
         
         <View style={styles.content}>
           <View style={styles.headerRow}>
             <View style={styles.titleWrapper}>
               <Text style={styles.meta}>{story.region} • {story.ethnicGroup}</Text>
-              <Text style={styles.title}>{story.title}</Text>
+              <Text style={styles.title} accessibilityRole="header">{story.title}</Text>
             </View>
             <IconButton
               icon={isFavorite ? "heart" : "heart-outline"}
               iconColor={isFavorite ? colors.primary : colors.textMid}
               size={28}
               onPress={() => handleToggleFavorite(story.id)}
+              accessibilityLabel={isFavorite ? 'Retirer ce récit des favoris' : 'Ajouter ce récit aux favoris'}
             />
           </View>
           
@@ -79,7 +101,11 @@ export const StoryDetailScreen = ({ route, navigation }: Props) => {
         </View>
       </ScrollView>
 
-      <AudioPlayer audioUrl={story.audioUrl} />
+      {story.audioUrl ? (
+        <AudioPlayer audioUrl={story.audioUrl} />
+      ) : (
+        <SpeechNarration text={story.content} title={story.title} />
+      )}
     </View>
   );
 };
@@ -98,9 +124,17 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 120,
   },
+  scrollContentWithNarration: {
+    paddingBottom: 210,
+  },
   coverImage: {
     width: '100%',
     height: 300,
+  },
+  coverFallback: {
+    backgroundColor: colors.surfaceWarm,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: 25,

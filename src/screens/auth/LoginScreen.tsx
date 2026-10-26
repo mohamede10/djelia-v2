@@ -12,6 +12,7 @@ import { BogolanPattern, DjeliaLogo } from '../../components/common/AfricanPatte
 import { colors } from '../../config/colors';
 import { useAppContext } from '../../store/AppProvider';
 import { getFirebaseAuthErrorMessage } from '../../services/authService';
+import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons';
 
 export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -124,11 +125,18 @@ export const LoginScreen = ({ navigation }: any) => {
 
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
+            <Text style={styles.dividerText}>ou continuer avec</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate('Signup')}>
+          <SocialAuthButtons />
+
+          <TouchableOpacity
+            style={[styles.signupLink, styles.signupLinkSpaced]}
+            onPress={() => navigation.navigate('Signup')}
+            accessibilityRole="button"
+            accessibilityLabel="Créer un compte Djelia"
+          >
             <Text style={styles.linkText}>
               Pas encore de compte ?{' '}
               <Text style={styles.linkBold}>Rejoindre le cercle</Text>
@@ -239,6 +247,9 @@ const styles = StyleSheet.create({
   signupLink: {
     alignItems: 'center',
     marginTop: 4,
+  },
+  signupLinkSpaced: {
+    marginTop: 28,
   },
   linkText: {
     color: colors.textMid,

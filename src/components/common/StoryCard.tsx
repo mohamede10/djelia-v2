@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../config/colors';
@@ -21,7 +22,13 @@ export const StoryCard = ({ story, onPress }: Props) => {
   }, [story.id]);
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.9}
+      accessibilityRole="button"
+      accessibilityLabel={`${story.title}, ${story.category}, ${story.region}`}
+    >
       {/* Bordure artisanale à gauche */}
       <View style={styles.accentBorder} />
       
@@ -38,12 +45,18 @@ export const StoryCard = ({ story, onPress }: Props) => {
           <Image 
             source={{ uri: story.imageUrl }} 
             style={styles.image} 
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={200}
             onError={() => setImageFailed(true)}
+            accessibilityIgnoresInvertColors
           />
         )}
         <TouchableOpacity 
           style={styles.favoriteButton} 
           onPress={() => toggleFavorite(story.id)}
+          accessibilityRole="button"
+          accessibilityLabel={isFavorite ? `Retirer ${story.title} des favoris` : `Ajouter ${story.title} aux favoris`}
         >
           <Text style={styles.favoriteIcon}>{isFavorite ? '♥' : '♡'}</Text>
         </TouchableOpacity>

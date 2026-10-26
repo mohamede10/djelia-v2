@@ -541,6 +541,354 @@ Dans les quartiers, cette hospitalité se vit aussi entre voisins : on partage u
     imageUrl: 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=800',
     likes: 118,
     views: 960,
+  },
+  {
+    id: '31',
+    title: 'Le Griot et le Roi Silencieux',
+    category: 'Conte',
+    region: 'Kankan',
+    ethnicGroup: 'Mandingue',
+    content: `Le roi du Manden avait interdit à quiconque de lui dire la vérité. Ceux qui annonçaient une mauvaise récolte ou une guerre perdue étaient chassés. Les conseillers apprirent à parler pour ne rien dire, et le royaume s'enfonça dans un silence doré.
+
+Un vieux griot demanda audience. Il entra sans instrument, s'assit et raconta l'histoire d'un puits que l'on avait recouvert d'une belle pierre. « Les villageois passaient devant en disant que l'eau était claire, puisque personne n'osait regarder dedans. Un jour, un enfant souleva la pierre et trouva le puits à sec. »
+
+Le roi resta longtemps silencieux. Puis il fit ouvrir les greniers, écouter les paysans et rouvrir les chemins. Il comprit que la parole du griot ne blessait pas le trône : elle l'empêchait de tomber. Depuis, à Kankan, on dit qu'un roi sans critique est un puits sans eau.`,
+    imageUrl: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800',
+    likes: 121,
+    views: 980,
+  },
+  {
+    id: '32',
+    title: 'La Fille qui Portait l’Eau du Fleuve',
+    category: 'Conte',
+    region: 'Faranah',
+    ethnicGroup: 'Dialonké',
+    content: `Chaque matin, Fatou descendait au fleuve avec deux calebasses. Les autres filles remplissaient les leurs en riant ; Fatou, elle, prenait le temps de regarder le courant. Sa mère s'impatientait : « L'eau n'a pas besoin d'être contemplée, elle a besoin d'être portée. »
+
+Une saison, le fleuve baissa sans prévenir. Les puits du village s'asséchèrent. Fatou se souvint d'un endroit où le courant formait un remous, sous les racines d'un figuier. Elle y conduisit les femmes et l'on trouva une source profonde.
+
+Les anciens comprirent qu'elle n'avait pas perdu son temps. « Celle qui regarde l'eau apprend où elle se cache », dirent-ils. Fatou devint la gardienne des points d'eau, et l'on apprit aux enfants à observer avant de puiser.`,
+    imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800',
+    likes: 97,
+    views: 760,
+  },
+  {
+    id: '33',
+    title: 'Le Fils du Tisserand',
+    category: 'Conte',
+    region: 'Kindia',
+    ethnicGroup: 'Soussou',
+    content: `Dans un atelier de Kindia, le tisserand Mamadou préparait ses fils avant le lever du soleil. Son fils Saliou, lui, rêvait de quitter le métier. Il trouvait le geste lent, répétitif, sans gloire. « Les héros manient le fer, disait-il, pas le coton. »
+
+Mamadou ne le força pas. Il lui confia une commande : un pagne pour le mariage d'une jeune veuve sans fortune. Saliou travailla à contrecœur, puis découvrit que chaque motif portait un sens : la ligne pour le chemin, le losange pour la famille, le bleu pour la patience.
+
+Le jour du mariage, la femme pleura en recevant le pagne. Elle y lisait le respect qu'on lui portait. Saliou reprit l'atelier de son père, non par obligation, mais parce qu'il avait compris que tisser, c'est relier des vies.`,
+    imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800',
+    likes: 88,
+    views: 690,
+  },
+  {
+    id: '34',
+    title: 'Le Dernier Chant du Baobab',
+    category: 'Conte',
+    region: 'Kouroussa',
+    ethnicGroup: 'Konianké',
+    content: `Le grand baobab de Kouroussa abritait les assemblées depuis des générations. On y réglait les disputes, on y annonçait les naissances, on y pleurait les morts. Puis vint un chef qui voulut bâtir un marché à sa place. « Un arbre ne nourrit personne », dit-il.
+
+Les anciens protestèrent, mais les haches arrivèrent. La veille de l'abattage, une vieille femme s'assit au pied du tronc et se mit à chanter. Elle chantait les noms de ceux qui s'étaient mariés sous les branches, les enfants nés à son ombre, les paroles de paix qui y avaient été prononcées.
+
+Les villageois vinrent un à un. Le chef écouta. Il comprit que l'arbre n'était pas un obstacle au marché : il en était la mémoire. Les haches furent rangées. Le marché se tint désormais à côté du baobab, et chaque nouveau commerçant devait d'abord écouter son histoire.`,
+    imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800',
+    likes: 104,
+    views: 820,
+  },
+  {
+    id: '35',
+    title: 'L’Écureuil et le Fromager',
+    category: 'Fable',
+    region: 'Macenta',
+    ethnicGroup: 'Kissi',
+    content: `Un écureuil avait élu domicile dans un jeune fromager. Chaque jour, il se moquait des arbres voisins : « Voyez comme je suis haut ! Mon arbre pousse plus vite que les vôtres. » Le fromager grandissait, et l'écureuil avec lui.
+
+Un vent violent traversa la forêt. Les arbres anciens plièrent leurs branches et tinrent bon. Le jeune fromager, haut mais tendre, se fendit en deux. L'écureuil tomba dans les fougères, indemne mais humilié.
+
+Une vieille chauve-souris suspendue à un kapokier lui dit : « Tu as choisi la hauteur avant la profondeur. » L'écureuil retourna vivre près des racines, apprit à connaître les arbres avant de s'y installer, et ne confondit plus jamais croissance et solidité.`,
+    imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',
+    likes: 63,
+    views: 480,
+  },
+  {
+    id: '36',
+    title: 'Le Chacal et la Carapace',
+    category: 'Fable',
+    region: 'Labé',
+    ethnicGroup: 'Peul',
+    content: `Le chacal trouva une carapace de tortue abandonnée. Il s'en couvrit et se présenta au village des animaux : « Je suis la tortue nouvelle, plus sage et plus rapide que l'ancienne. » On l'invita aux repas, car la tortue était aimée.
+
+Mais le chacal ne pouvait s'empêcher de courir après les poules. Il oubliait sa carapace, se cognait aux murs et perdait ses moyens. Un jour, une poule le reconnut à son odeur. Tous les animaux accoururent.
+
+Le chacal s'enfuit, la carapace sur le dos, incapable de la retirer. Il comprit que l'on peut emprunter l'apparence d'un autre, jamais sa place. Depuis, au Fouta, on dit : « La carapace ne fait pas la tortue, pas plus que le pagne ne fait l'homme. »`,
+    imageUrl: 'https://images.unsplash.com/photo-1504174604143-53116383966c?w=800',
+    likes: 72,
+    views: 540,
+  },
+  {
+    id: '37',
+    title: 'Le Coq qui Voulait le Soleil',
+    category: 'Fable',
+    region: 'Boké',
+    ethnicGroup: 'Landouma',
+    content: `Chaque matin, le coq chantait avant le lever du soleil. Les villageois se réveillaient et disaient : « Le coq a fait venir le jour. » Le coq finit par le croire. Il se crut indispensable.
+
+Un matin, il décida de ne pas chanter pour prouver son pouvoir. Le soleil se leva quand même. Le coq, vexé, chanta plus fort le lendemain, puis se rendit compte que les hommes se levaient sans lui.
+
+Une vieille cane lui dit : « Tu annonces le jour, tu ne le fabriques pas. » Le coq retrouva sa place : non pas maître du soleil, mais veilleur fidèle. À Boké, on enseigne aux enfants que celui qui confond sa mission avec sa puissance finit par se taire inutilement.`,
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+    likes: 59,
+    views: 460,
+  },
+  {
+    id: '38',
+    title: 'La Pintade et le Chasseur',
+    category: 'Fable',
+    region: 'Nzérékoré',
+    ethnicGroup: 'Manon',
+    content: `Un chasseur avait posé ses pièges dans la forêt. Une pintade, curieuse, suivit les traces de ses pas. Elle vit les collets, les évita et se moqua : « Le chasseur croit être plus malin que la forêt. »
+
+Le lendemain, elle revint avec ses petits pour leur montrer les pièges. Mais la pluie avait effacé les repères, et l'un des oisillons se prit dans un filet. La pintade cria, alerte tout le bois, et le chasseur accourut.
+
+Au lieu de tuer, il libéra l'oisillon. La pintade, surprise, lui demanda pourquoi. « Parce que tu as appris à tes petits à regarder le danger, et moi j'ai appris que la forêt se souvient de ceux qui la respectent. » Depuis, le chasseur plaçait des signes visibles près de ses pièges.`,
+    imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',
+    likes: 67,
+    views: 510,
+  },
+  {
+    id: '39',
+    title: 'Le Lion et le Petit Oiseau',
+    category: 'Fable',
+    region: 'Siguiri',
+    ethnicGroup: 'Mandingue',
+    content: `Le lion, blessé par une épine, rugissait dans la savane. Tous les animaux fuyaient. Seul un petit oiseau s'approcha. « Laisse-moi regarder, dit-il. Je suis assez petit pour entrer dans ta patte. »
+
+Le lion accepta, moitié par douleur, moitié par mépris. L'oiseau retira l'épine et nettoya la plaie. Le lion, soulagé, voulut le récompenser en le nommant messager du royaume. L'oiseau refusa : « Je ne veux pas de titre, je veux que tu te souviennes qu'un petit peut sauver un grand. »
+
+Les années passèrent. Le lion, devenu vieux, fut chassé par un jeune rival. C'est l'oiseau qui l'aida à trouver un abri et à manger. La savane apprit ce jour-là que la grandeur se mesure aussi à ceux qu'elle accepte d'écouter.`,
+    imageUrl: 'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800',
+    likes: 96,
+    views: 740,
+  },
+  {
+    id: '40',
+    title: 'L’Hippopotame et le Pêcheur',
+    category: 'Fable',
+    region: 'Boffa',
+    ethnicGroup: 'Nalou',
+    content: `Sur la Fatala, un pêcheur trouvait chaque matin ses nasses vides. Il accusa le courant, puis les voleurs, puis la lune. Une nuit, il veilla. Une masse sombre sortit de l'eau : un hippopotame venait manger les poissons pris dans ses filets.
+
+Le pêcheur cria, lança une pierre, menaça. L'hippopotame s'en alla sans se presser. Le lendemain, les nasses étaient encore vides. Une vieille femme du village lui dit : « Tu défends ton poisson, mais tu as oublié de partager la berge. »
+
+Le pêcheur laissa une zone de roseaux intacte et déplaça ses nasses. L'hippopotame cessa de venir. Le pêcheur comprit que la mer et le fleuve ne se conquièrent pas : ils se négocient. Depuis, à Boffa, on réserve toujours une part de la rive aux animaux.`,
+    imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+    likes: 74,
+    views: 560,
+  },
+  {
+    id: '41',
+    title: 'Les Paroles de la Savane',
+    category: 'Proverbe',
+    region: 'Kankan',
+    ethnicGroup: 'Mandingue',
+    content: `En saison sèche, quand l'herbe jaunit et que le vent porte la poussière, les anciens du Manden aiment rappeler les leçons de la savane. En voici quelques-unes.
+
+« L'herbe qui plie devant le vent se relève après l'orage. » — La souplesse vaut mieux que l'obstination stérile.
+
+« Un seul arbre ne fait pas une forêt, mais il peut abriter un voyageur. » — Chacun peut être utile à sa mesure.
+
+« La poussière ne monte jamais plus haut que celui qui la soulève. » — Nos gestes retombent toujours sur nous.
+
+« Le feu de brousse éclaire un instant et détruit pour des années. » — La colère brille vite et laisse des cendres.
+
+« Marche derrière celui qui connaît le puits, mais garde les yeux ouverts. » — Suis les anciens sans renoncer à ton jugement.
+
+Médite ces paroles quand la route est longue : la savane parle à ceux qui savent ralentir.`,
+    imageUrl: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800',
+    likes: 101,
+    views: 810,
+  },
+  {
+    id: '42',
+    title: 'Les Mots de la Forêt',
+    category: 'Proverbe',
+    region: 'Nzérékoré',
+    ethnicGroup: 'Guerzé',
+    content: `La forêt de Nzérékoré ne se traverse pas en courant. Les anciens s'arrêtent sous les fromagers pour transmettre les paroles que le bois leur a confiées.
+
+« L'arbre ne se vante pas de ses racines, pourtant c'est d'elles qu'il vit. » — L'humilité porte la grandeur.
+
+« Le sentier que personne n'entretient disparaît sous les feuilles. » — La mémoire aussi demande des mains.
+
+« La liane s'accroche au tronc, mais c'est le tronc qui tient le ciel. » — Le soutien discret mérite reconnaissance.
+
+« On ne coupe pas l'arbre qui donne l'ombre pour voir le soleil. » — Ne sacrifie pas le durable au plaisir du moment.
+
+« La forêt écoute avant de répondre. » — Le silence précède la vraie parole.
+
+Ces mots rappellent que la forêt n'est pas un décor : c'est une école dont les cours ne se terminent jamais.`,
+    imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',
+    likes: 86,
+    views: 670,
+  },
+  {
+    id: '43',
+    title: 'Les Leçons du Marché',
+    category: 'Proverbe',
+    region: 'Conakry',
+    ethnicGroup: 'Soussou',
+    content: `À Conakry, le marché enseigne autant que l'école. On y apprend à saluer, à négocier, à partager un étal et à supporter la chaleur. Voici des paroles entendues entre deux paniers.
+
+« Le prix se discute, le respect ne se négocie pas. » — Aucun marché ne justifie la humiliation.
+
+« Celui qui court partout revient souvent les mains vides. » — La précipitation disperse.
+
+« Le client d'aujourd'hui est le voisin de demain. » — Ne brûle pas la relation pour un gain.
+
+« Une balance juste nourrit la famille plus longtemps qu'une balance menteuse. » — La tricherie se paie.
+
+« On ne connaît pas la valeur d'un pagne en regardant seulement son prix. » — L'œuvre dépasse l'étiquette.
+
+Le marché est un miroir : on y voit comment une ville traite ses vendeurs, ses acheteurs et ses anciens.`,
+    imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800',
+    likes: 92,
+    views: 720,
+  },
+  {
+    id: '44',
+    title: 'La Sagesse des Montagnes',
+    category: 'Proverbe',
+    region: 'Labé',
+    ethnicGroup: 'Peul',
+    content: `Sur les hauteurs du Fouta, le vent porte les paroles des bergers d'un plateau à l'autre. La montagne apprend la patience, car rien n'y monte vite.
+
+« La montagne ne se franchit pas d'un seul pas. » — Découpe ton effort, mais ne t'arrête pas.
+
+« Le sommet est silencieux ; c'est la vallée qui fait du bruit. » — La vraie force parle peu.
+
+« Celui qui regarde seulement le sommet oublie le caillou sous son pied. » — L'attention au présent protège l'avenir.
+
+« Une source connaît son chemin même sous les pierres. » — La vocation persiste malgré les obstacles.
+
+« Le berger qui écoute ses bêtes entend aussi le danger. » — Prends soin du quotidien, il annonce les grands jours.
+
+Le Fouta enseigne que l'on ne domine pas la montagne : on apprend à marcher avec elle.`,
+    imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800',
+    likes: 84,
+    views: 650,
+  },
+  {
+    id: '45',
+    title: 'Les Paroles du Riz',
+    category: 'Proverbe',
+    region: 'Kissidougou',
+    ethnicGroup: 'Kissi',
+    content: `Dans les rizières de Kissidougou, les femmes chantent en repiquant. Leurs paroles suivent l'eau et la boue, et rappellent que la nourriture est un travail collectif.
+
+« Le riz ne pousse pas dans la main fermée. » — Ce que l'on garde sans partager ne profite à personne.
+
+« Une seule saison de pluie ne remplit pas tous les greniers. » — La prévoyance se construit dans la durée.
+
+« Le champ du voisin n'est pas ton ennemi. » — La jalousie stérilise plus que la sécheresse.
+
+« La main qui repique aujourd'hui mangera demain. » — L'effort patient a un goût de riz chaud.
+
+« On ne mesure pas la récolte avant que l'épi ne courbe. » — Attends la maturité pour juger.
+
+Ces proverbes accompagnent le travail et rappellent que la terre ne récompense pas l'impatience.`,
+    imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800',
+    likes: 78,
+    views: 600,
+  },
+  {
+    id: '46',
+    title: 'Les Mots du Tisserand',
+    category: 'Proverbe',
+    region: 'Kindia',
+    ethnicGroup: 'Soussou',
+    content: `Dans les ateliers de Kindia, le métier à tisser rythme la journée. Entre deux passages de navette, les anciens transmettent quelques paroles.
+
+« Le fil seul ne fait pas le pagne. » — La coopération donne forme à l'effort individuel.
+
+« Un nœud mal serré se défait au premier lavage. » — La négligence cache longtemps sa faute.
+
+« Le motif le plus beau est celui qui se répète sans se perdre. » — La constance n'est pas monotonie.
+
+« On reconnaît le tisserand à l'envers de son ouvrage. » — Le détail invisible révèle le vrai savoir-faire.
+
+« La navette va et vient, mais c'est la main qui décide. » — L'outil ne remplace pas le jugement.
+
+Ces maximes font partie de l'apprentissage : on n'apprend pas seulement à tisser, on apprend à vivre avec ce que l'on crée.`,
+    imageUrl: 'https://images.unsplash.com/photo-1535941339077-2dd1c7963098?w=800',
+    likes: 71,
+    views: 545,
+  },
+  {
+    id: '47',
+    title: 'La Bénédiction des Semences',
+    category: 'Coutume',
+    region: 'Faranah',
+    ethnicGroup: 'Dialonké',
+    content: `Avant les grandes pluies, les villages dialonké de Faranah préparent les semences. On trie le riz, le mil et l'arachide, on répare les paniers et l'on confie les graines aux plus anciens.
+
+La veille des semis, les familles se rassemblent. Les anciens rappellent les récoltes difficiles, les voisins qui ont partagé, les mains qui ont travaillé. Chacun reçoit une poignée de semences et la bénit à sa manière, par une parole ou un geste de gratitude.
+
+Le jour venu, les premiers grains sont semés par les enfants, guidés par les aînés. On dit que la terre reconnaît celui qui s'approche d'elle avec respect. Cette coutume rappelle que semer n'est pas seulement produire : c'est transmettre un espoir à ceux qui viendront après.`,
+    imageUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800',
+    likes: 90,
+    views: 705,
+  },
+  {
+    id: '48',
+    title: 'Le Passage sur la Montagne',
+    category: 'Coutume',
+    region: 'Nzérékoré',
+    ethnicGroup: 'Toma',
+    content: `Chez les Toma, le passage d'une génération à l'autre s'accompagne d'épreuves encadrées par les anciens. Le jeune quitte l'enfance, apprend le respect du secret, l'endurance et la solidarité du groupe.
+
+La montagne n'est pas un simple décor : elle symbolise l'effort et le silence nécessaires pour grandir. Les détails du rituel appartiennent aux initiés et ne se racontent pas au dehors. Ce qui se transmet publiquement, c'est le sens : devenir adulte, c'est accepter des responsabilités envers la famille et le village.
+
+Aujourd'hui, ces pratiques évoluent et certaines ne sont plus organisées comme autrefois. Les anciens insistent sur une chose : le passage ne fait pas l'homme à lui seul, c'est la manière dont il traite les autres ensuite qui le révèle.`,
+    imageUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
+    likes: 82,
+    views: 640,
+  },
+  {
+    id: '49',
+    title: 'Le Partage du Poisson',
+    category: 'Coutume',
+    region: 'Boffa',
+    ethnicGroup: 'Nalou',
+    content: `À Boffa, quand les pirogues rentrent chargées, le poisson n'est pas vendu avant d'avoir été partagé. Les pêcheurs réservent une part pour les anciens, une pour les familles sans pêcheur, une pour les femmes qui préparent le repas commun.
+
+La tête du poisson revient souvent à l'hôte ou à l'aîné, non parce qu'elle est la meilleure, mais parce qu'elle symbolise l'honneur rendu à celui qui reçoit. Les enfants apprennent à ne pas se servir avant que les plus âgés aient reçu.
+
+Cette coutume survit même quand la pêche est maigre. On dit que la mer se souvient des villages qui partagent. Le poisson passe, la parole reste : celui qui accueille aujourd'hui sera accueilli demain.`,
+    imageUrl: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800',
+    likes: 87,
+    views: 675,
+  },
+  {
+    id: '50',
+    title: 'La Cérémonie du Nom',
+    category: 'Coutume',
+    region: 'Kankan',
+    ethnicGroup: 'Mandingue',
+    content: `Dans les familles mandingues de Kankan, le nom d'un enfant se donne devant les proches, quelques jours après la naissance. On choisit un nom qui porte une histoire, celui d'un ancêtre, d'un ami fidèle ou d'une personne dont on souhaite transmettre les qualités.
+
+Les anciens rappellent que le nom n'est pas une étiquette : c'est une promesse et un lien. On évoque les responsabilités qui accompagneront l'enfant, puis on partage un repas et des bénédictions. Les voisins viennent même s'ils ne sont pas invités, car la naissance concerne le village.
+
+Aujourd'hui, la cérémonie varie selon les familles et les villes. Ce qui demeure, c'est l'idée que l'enfant appartient à une chaîne : ceux qui l'ont précédé lui confient une mémoire, et il devra un jour la transmettre.`,
+    imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800',
+    likes: 113,
+    views: 900,
   }
 ];
 
