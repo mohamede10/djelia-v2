@@ -1,8 +1,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Dimensions,
-    Image,
+    ActivityIndicator,
+    Linking,
     ScrollView,
     StyleSheet,
     Text,
@@ -10,44 +10,159 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Audio } from 'expo-av';
+import type { AVPlaybackStatus } from 'expo-av';
+import * as WebBrowser from 'expo-web-browser';
 import { colors } from '../../config/colors';
-import { Book } from './BooksScreen';
+import { Book, BookCover } from './BooksScreen';
+import { useAppContext } from '../../store/AppProvider';
+import { readLocalBookFavorites, writeLocalBookFavorites } from '../../services/storageService';
 
-const { width } = Dimensions.get('window');
 type ReadingMode = null | 'pdf' | 'audio';
 
-const AudioPlayer = ({ audioUrl, title }: { audioUrl: string; title: string }) => {
+const formatTime = (millis: number): string => {
+  if (!Number.isFinite(millis) || millis <= 0) return '0:00';
+  const totalSeconds = Math.floor(millis / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
+const BookAudioPlayer = ({ audioUrl, title }: { audioUrl: any; title: string }) => {
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [position, setPosition] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync().catch(() => {});
+        }
+      : undefined;
+  }, [sound]);
+
+  const onStatus = (status: AVPlaybackStatus) => {
+    if (!status.isLoaded) {
+      if (status.error) {
+        setError('Lecture impossible : le fichier audio est introuvable.');
+      }
+      return;
+    }
+    setPosition(status.positionMillis || 0);
+    setDuration(status.durationMillis || 0);
+    setIsPlaying(status.isPlaying);
+    if (status.didJustFinish) {
+      setPosition(0);
+    }
+  };
+
+  const handlePlayPause = async () => {
+    setError('');
+    try {
+      if (!sound) {
+        setIsLoading(true);
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+        const source = typeof audioUrl === 'string' ? { uri: audioUrl } : audioUrl;
+        const { sound: created } = await Audio.Sound.createAsync(
+          source,
+          { shouldPlay: true },
+          onStatus
+        );
+        setSound(created);
+        setIsLoading(false);
+        return;
+      }
+      if (isPlaying) {
+        await sound.pauseAsync();
+      } else {
+        await sound.playAsync();
+      }
+    } catch (e) {
+      console.warn('Book audio playback error:', e);
+      setError('Impossible de lire cet audio pour le moment.');
+      setIsLoading(false);
+    }
+  };
+
+  const skip = async (seconds: number) => {
+    if (!sound) return;
+    try {
+      const status = await sound.getStatusAsync();
+      if (!status.isLoaded) return;
+      const target = Math.max(
+        0,
+        Math.min(status.durationMillis || 0, (status.positionMillis || 0) + seconds * 1000)
+      );
+      await sound.setPositionAsync(target);
+      setPosition(target);
+    } catch {
+      // On ignore une erreur de déplacement ponctuelle.
+    }
+  };
+
+  const progress = duration > 0 ? Math.min(position / duration, 1) : 0;
 
   return (
     <View style={audioStyles.container}>
       <View style={audioStyles.header}>
         <MaterialCommunityIcons name="headphones" size={20} color={colors.primary} />
-        <Text style={audioStyles.label}>Livre audio</Text>
+        <Text style={audioStyles.label} numberOfLines={1}>
+          {title}
+        </Text>
       </View>
       <View style={audioStyles.progressBar}>
         <View style={[audioStyles.progressFill, { width: `${progress * 100}%` }]} />
       </View>
       <View style={audioStyles.timeRow}>
-        <Text style={audioStyles.time}>0:00</Text>
-        <Text style={audioStyles.time}>--:--</Text>
+        <Text style={audioStyles.time}>{formatTime(position)}</Text>
+        <Text style={audioStyles.time}>{duration > 0 ? formatTime(duration) : '--:--'}</Text>
       </View>
       <View style={audioStyles.controls}>
-        <TouchableOpacity style={audioStyles.controlBtn}>
-          <MaterialCommunityIcons name="rewind-30" size={28} color={colors.textMid} />
-        </TouchableOpacity>
-        <TouchableOpacity style={audioStyles.playBtn} onPress={() => setIsPlaying(!isPlaying)}>
+        <TouchableOpacity
+          style={audioStyles.controlBtn}
+          onPress={() => skip(-30)}
+          disabled={!sound}
+          accessibilityLabel="Reculer de 30 secondes"
+        >
           <MaterialCommunityIcons
-            name={isPlaying ? 'pause' : 'play'}
-            size={32}
-            color={colors.white}
+            name="rewind-30"
+            size={28}
+            color={sound ? colors.textMid : colors.borderDark}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={audioStyles.controlBtn}>
-          <MaterialCommunityIcons name="fast-forward-30" size={28} color={colors.textMid} />
+        <TouchableOpacity
+          style={audioStyles.playBtn}
+          onPress={handlePlayPause}
+          disabled={isLoading}
+          accessibilityLabel={isPlaying ? 'Mettre en pause' : 'Écouter'}
+        >
+          {isLoading ? (
+            <ActivityIndicator color={colors.white} />
+          ) : (
+            <MaterialCommunityIcons
+              name={isPlaying ? 'pause' : 'play'}
+              size={32}
+              color={colors.white}
+            />
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={audioStyles.controlBtn}
+          onPress={() => skip(30)}
+          disabled={!sound}
+          accessibilityLabel="Avancer de 30 secondes"
+        >
+          <MaterialCommunityIcons
+            name="fast-forward-30"
+            size={28}
+            color={sound ? colors.textMid : colors.borderDark}
+          />
         </TouchableOpacity>
       </View>
+      {error ? <Text style={audioStyles.error}>{error}</Text> : null}
     </View>
   );
 };
@@ -71,6 +186,7 @@ const audioStyles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     fontSize: 14,
     color: colors.text,
+    flex: 1,
   },
   progressBar: {
     height: 4,
@@ -113,17 +229,52 @@ const audioStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
+  error: {
+    marginTop: 12,
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
+    color: colors.error,
+    textAlign: 'center',
+  },
 });
 
-const PdfViewer = ({ pdfUrl }: { pdfUrl: string }) => (
-  <View style={pdfStyles.container}>
-    <MaterialCommunityIcons name="file-pdf-box" size={48} color={colors.accentRed} />
-    <Text style={pdfStyles.title}>Lecteur PDF</Text>
-    <Text style={pdfStyles.subtitle}>
-      Installe <Text style={{ fontFamily: 'Poppins_700Bold' }}>react-native-pdf</Text> pour activer la lecture
-    </Text>
-  </View>
-);
+const PdfViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
+  const [error, setError] = useState('');
+
+  const openDocument = async () => {
+    setError('');
+    try {
+      if (/^https?:\/\//i.test(pdfUrl)) {
+        await WebBrowser.openBrowserAsync(pdfUrl);
+        return;
+      }
+      const supported = await Linking.canOpenURL(pdfUrl);
+      if (!supported) {
+        throw new Error('unsupported');
+      }
+      await Linking.openURL(pdfUrl);
+    } catch {
+      setError("Impossible d'ouvrir ce document. Vérifie ta connexion ou réessaie plus tard.");
+    }
+  };
+
+  return (
+    <View style={pdfStyles.container}>
+      <MaterialCommunityIcons name="file-pdf-box" size={48} color={colors.accentRed} />
+      <Text style={pdfStyles.title} numberOfLines={2}>
+        {title}
+      </Text>
+      <Text style={pdfStyles.subtitle}>
+        Le document s’ouvrira dans le lecteur PDF de ton appareil.
+      </Text>
+      <TouchableOpacity style={pdfStyles.openBtn} onPress={openDocument}>
+        <MaterialCommunityIcons name="open-in-new" size={18} color={colors.white} />
+        <Text style={pdfStyles.openBtnText}>Ouvrir le PDF</Text>
+      </TouchableOpacity>
+      {error ? <Text style={pdfStyles.error}>{error}</Text> : null}
+    </View>
+  );
+};
 
 const pdfStyles = StyleSheet.create({
   container: {
@@ -149,18 +300,62 @@ const pdfStyles = StyleSheet.create({
     color: colors.textMid,
     textAlign: 'center',
   },
+  openBtn: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: colors.accentRed,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  openBtnText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 13,
+    color: colors.white,
+  },
+  error: {
+    marginTop: 10,
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
+    color: colors.error,
+    textAlign: 'center',
+  },
 });
 
 export const BookDetailScreen = ({ route }: any) => {
   const { book }: { book: Book } = route.params;
+  const { user } = useAppContext();
+  const userId = user?.id || 'local_user';
   const [mode, setMode] = useState<ReadingMode>(null);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    readLocalBookFavorites(userId).then((ids) => {
+      if (active) setIsFavorite(ids.includes(book.id));
+    });
+    return () => {
+      active = false;
+    };
+  }, [book.id, userId]);
+
+  const toggleBookmark = async () => {
+    const next = !isFavorite;
+    setIsFavorite(next);
+    const current = await readLocalBookFavorites(userId);
+    const updated = next
+      ? Array.from(new Set([...current, book.id]))
+      : current.filter((id) => id !== book.id);
+    await writeLocalBookFavorites(userId, updated);
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
-          <Image source={{ uri: book.coverUrl }} style={styles.cover} />
+          <BookCover book={book} height={280} iconSize={90} />
           <View style={styles.heroOverlay}>
             <View style={styles.heroBadges}>
               <View style={styles.categoryBadge}>
@@ -183,7 +378,12 @@ export const BookDetailScreen = ({ route }: any) => {
               <Text style={styles.author}>{book.author}</Text>
               <Text style={styles.publisher}>{book.publisher}</Text>
             </View>
-            <TouchableOpacity onPress={() => setIsFavorite(!isFavorite)} style={styles.favBtn}>
+            <TouchableOpacity
+              onPress={toggleBookmark}
+              style={styles.favBtn}
+              accessibilityRole="button"
+              accessibilityLabel={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+            >
               <MaterialCommunityIcons
                 name={isFavorite ? 'bookmark' : 'bookmark-outline'}
                 size={28}
@@ -248,9 +448,18 @@ export const BookDetailScreen = ({ route }: any) => {
             )}
           </View>
 
-          {mode === 'pdf' && book.pdfUrl && <PdfViewer pdfUrl={book.pdfUrl} />}
+          {!book.pdfUrl && !book.audioUrl && (
+            <View style={styles.unavailableBox}>
+              <MaterialCommunityIcons name="clock-outline" size={18} color={colors.textLight} />
+              <Text style={styles.unavailableText}>
+                La version numérique de ce livre est en cours de préparation. Reviens bientôt !
+              </Text>
+            </View>
+          )}
+
+          {mode === 'pdf' && book.pdfUrl && <PdfViewer pdfUrl={book.pdfUrl} title={book.title} />}
           {mode === 'audio' && book.audioUrl && (
-            <AudioPlayer audioUrl={book.audioUrl} title={book.title} />
+            <BookAudioPlayer audioUrl={book.audioUrl} title={book.title} />
           )}
 
           <View style={styles.partnerBox}>
@@ -344,6 +553,24 @@ const styles = StyleSheet.create({
   formatBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   formatBtnText: { fontFamily: 'Poppins_700Bold', fontSize: 13, color: colors.textMid },
   formatBtnTextActive: { color: colors.white },
+  unavailableBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.surfaceWarm,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  unavailableText: {
+    flex: 1,
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.textMid,
+  },
   partnerBox: {
     flexDirection: 'row',
     gap: 12,

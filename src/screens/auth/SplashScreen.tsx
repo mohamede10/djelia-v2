@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Dimensions, Easing } from 'react-native';
 import { Text } from 'react-native-paper';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 import { colors } from '../../config/colors';
+import { hasSeenOnboarding } from '../../services/storageService';
 
 const { width, height } = Dimensions.get('window');
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 export const SplashScreen = ({ navigation }: any) => {
@@ -70,8 +70,24 @@ export const SplashScreen = ({ navigation }: any) => {
       ]).start();
     });
 
-    const timer = setTimeout(() => navigation.replace('Onboarding'), 6500);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    // Un utilisateur qui a déjà vu l'onboarding va directement au login.
+    hasSeenOnboarding().then((seen) => {
+      if (cancelled) return;
+      timer = setTimeout(
+        () => navigation.replace(seen ? 'Login' : 'Onboarding'),
+        seen ? 2600 : 4200
+      );
+    });
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+    // Animation d'introduction : elle ne doit se jouer qu'une seule fois.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -121,7 +137,7 @@ export const SplashScreen = ({ navigation }: any) => {
       <Animated.View style={[styles.textContainer, { opacity: textReveal, transform: [{ translateY: textReveal.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
         <Text style={styles.title}>DJELIA</Text>
         <View style={styles.divider} />
-        <Text style={styles.subtitle}>L'ESPRIT DE LA MÉMOIRE</Text>
+        <Text style={styles.subtitle}>L’ESPRIT DE LA MÉMOIRE</Text>
       </Animated.View>
     </View>
   );
@@ -139,8 +155,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    shadowBlur: 20,
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 10,
   },
   flash: {
     ...StyleSheet.absoluteFillObject,

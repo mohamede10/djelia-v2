@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Searchbar, Text, ActivityIndicator, Chip } from 'react-native-paper';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StoryCard } from '../../components/common/StoryCard';
 import { ScreenHeader } from '../../components/common/ScreenHeader';
 import { searchStories, Story } from '../../services/dataService';
 import { colors } from '../../config/colors';
 import { BogolanPattern } from '../../components/common/AfricanPattern';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const REGIONS = ['Toutes', 'Kankan', 'Labé', 'Nzérékoré', 'Conakry'];
 const ETHNIES = ['Toutes', 'Mandingue', 'Peul', 'Soussou', 'Baga'];
+const CATEGORIES = ['Toutes', 'Contes', 'Fables', 'Proverbes', 'Coutumes'];
 
 export const SearchScreen = ({ navigation, route }: any) => {
   const initialCategory = route.params?.category || 'Toutes';
@@ -23,6 +23,13 @@ export const SearchScreen = ({ navigation, route }: any) => {
   
   const [results, setResults] = useState<Story[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Synchronise le filtre si l'on arrive depuis un totem de l'accueil.
+  useEffect(() => {
+    if (route.params?.category) {
+      setSelectedCategory(route.params.category);
+    }
+  }, [route.params?.category]);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -49,6 +56,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
       <ScreenHeader 
         title="Quête"
         subtitle="Explorez les secrets de l'histoire"
+        onBack={() => navigation.goBack()}
       />
 
       {/* WATERMARK VERTICAL */}
@@ -75,6 +83,25 @@ export const SearchScreen = ({ navigation, route }: any) => {
         />
 
         <View style={styles.filtersContainer}>
+          <Text style={styles.filterLabel}>PAR CATÉGORIE</Text>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={CATEGORIES}
+            keyExtractor={item => item}
+            renderItem={({ item }) => (
+              <Chip
+                selected={selectedCategory === item}
+                onPress={() => setSelectedCategory(item)}
+                style={[styles.chip, selectedCategory === item && styles.chipSelected]}
+                textStyle={[styles.chipText, selectedCategory === item && styles.chipTextSelected]}
+              >
+                {item.toUpperCase()}
+              </Chip>
+            )}
+            contentContainerStyle={styles.filterList}
+          />
+
           <Text style={styles.filterLabel}>PAR RÉGION</Text>
           <FlatList
             horizontal
@@ -132,7 +159,7 @@ export const SearchScreen = ({ navigation, route }: any) => {
           contentContainerStyle={styles.listContainer}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={styles.emptyText}>Le savoir que vous cherchez n'a pas encore été récolté.</Text>
+              <Text style={styles.emptyText}>Le savoir que vous cherchez n’a pas encore été récolté.</Text>
             </View>
           }
         />

@@ -41,6 +41,7 @@ export const FavoritesScreen = ({ navigation }: Props) => {
       <ScreenHeader 
         title="Mes Favoris"
         subtitle="Vos histoires et coutumes sauvegardées"
+        onBack={() => navigation.goBack()}
       />
       <FlatList
         data={favoriteStories}
@@ -48,13 +49,13 @@ export const FavoritesScreen = ({ navigation }: Props) => {
         renderItem={({ item }) => (
           <StoryCard 
             story={item} 
-            onPress={() => navigation.navigate('StoryDetail', { id: item.id })} 
+            onPress={() => navigation.navigate('Accueil', { screen: 'StoryDetail', params: { id: item.id } })} 
           />
         )}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text style={styles.emptyText}>Vous n'avez pas encore de favoris.</Text>
+            <Text style={styles.emptyText}>Vous n’avez pas encore de favoris.</Text>
           </View>
         }
       />

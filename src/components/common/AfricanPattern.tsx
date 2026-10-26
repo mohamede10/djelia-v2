@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Svg, { Polygon, Circle, Rect, Line, Path, Ellipse, Defs, Pattern } from 'react-native-svg';
+import Svg, { Circle, Line, Path, Ellipse } from 'react-native-svg';
 import { colors } from '../../config/colors';
 
 // Motif Bogolan subtil pour les fonds

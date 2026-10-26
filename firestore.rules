@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Fonction utilitaire pour vérifier si l'utilisateur est authentifié
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Fonction utilitaire pour vérifier si l'utilisateur est le propriétaire de la ressource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Fonction pour vérifier si l'utilisateur est administrateur
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- COLLECTION USERS (Profils Utilisateurs) ---
+    // Lecture : l'utilisateur lui-même ou les administrateurs
+    // Écriture : l'utilisateur lui-même uniquement (création & mise à jour)
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId);
+      allow delete: if isAdmin();
+    }
+
+    // --- COLLECTION STORIES (Contes, Fables, Proverbes, Coutumes) ---
+    // Lecture : publique (ouvrable à tous les membres et visiteurs)
+    // Écriture : réservée aux administrateurs ou griots certifiés
+    match /stories/{storyId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- COLLECTION FAVORITES ---
+    // Lecture & Écriture : chaque utilisateur ne peut gérer QUE ses propres favoris
+    match /favorites/{favoriteId} {
+      allow read: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // --- COLLECTION PRODUCTS (Artisanat & Marketplace) ---
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- COLLECTION LANGUAGES & COURSES ---
+    match /languages/{langId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Audio } from 'expo-av';
 import Svg, { Rect } from 'react-native-svg';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../config/colors';
-
-const { width } = Dimensions.get('window');
 
 type Props = { audioUrl?: any };
 
@@ -92,7 +90,11 @@ export const AudioPlayer = ({ audioUrl }: Props) => {
     if (sound && hasAudio) {
       const status = await sound.getStatusAsync();
       if (status.isLoaded) {
-        const newPos = Math.max(0, Math.min(duration, status.positionMillis + seconds * 1000));
+        const durationMillis = status.durationMillis || 0;
+        const newPos = Math.max(
+          0,
+          Math.min(durationMillis, (status.positionMillis || 0) + seconds * 1000)
+        );
         await sound.setPositionAsync(newPos);
       }
     }

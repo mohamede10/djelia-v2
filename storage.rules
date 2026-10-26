@@ -1,0 +1,30 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Fonction utilitaire : utilisateur authentifié
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Fichiers audio de narration des récits (/audio/{fileName})
+    match /audio/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated(); // Réservé à l'administration/griots
+    }
+    
+    // Images de couverture des histoires (/stories/{fileName})
+    match /stories/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    
+    // Photos de profil utilisateur (/users/{userId}/{fileName})
+    match /users/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == userId 
+                    && request.resource.size < 5 * 1024 * 1024 // Max 5 Mo
+                    && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

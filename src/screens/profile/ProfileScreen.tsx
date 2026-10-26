@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../config/colors';
-import { BogolanPattern, HutIcon } from '../../components/common/AfricanPattern';
+import { BogolanPattern } from '../../components/common/AfricanPattern';
 import { useAppContext } from '../../store/AppProvider';
+import { getStories } from '../../services/dataService';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 export const ProfileScreen = ({ navigation }: any) => {
-  const { user, logout } = useAppContext();
+  const { user, favorites, logout } = useAppContext();
+  const [storyCount, setStoryCount] = useState(0);
+
+  useEffect(() => {
+    getStories()
+      .then((stories) => setStoryCount(stories.length))
+      .catch(() => setStoryCount(0));
+  }, []);
+
+  const languagesCount = user?.preferredLanguages?.length || 0;
 
   return (
     <View style={styles.container}>
@@ -28,14 +38,19 @@ export const ProfileScreen = ({ navigation }: any) => {
           <BogolanPattern opacity={0.05} />
           <View style={styles.avatarWrapper}>
             <View style={styles.goldRing} />
-            <Avatar.Text
-              size={100}
-              label={user?.name?.substring(0, 2).toUpperCase() || 'DJ'}
-              style={styles.avatar}
-              labelStyle={styles.avatarLabel}
-            />
+            {user?.photoUrl ? (
+              <Avatar.Image size={100} source={{ uri: user.photoUrl }} style={styles.avatar} />
+            ) : (
+              <Avatar.Text
+                size={100}
+                label={user?.name?.substring(0, 2).toUpperCase() || 'DJ'}
+                style={styles.avatar}
+                labelStyle={styles.avatarLabel}
+              />
+            )}
           </View>
           <Text style={styles.name}>{user?.name || 'Gardien Djelia'}</Text>
+          {user?.email ? <Text style={styles.email}>{user.email}</Text> : null}
           <View style={styles.rankBadge}>
             <Text style={styles.rankText}>GARDIEN DU SAVOIR</Text>
           </View>
@@ -43,18 +58,18 @@ export const ProfileScreen = ({ navigation }: any) => {
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>RÉCITS LUS</Text>
+            <Text style={styles.statValue}>{favorites.length}</Text>
+            <Text style={styles.statLabel}>FAVORIS</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>3</Text>
+            <Text style={styles.statValue}>{languagesCount}</Text>
             <Text style={styles.statLabel}>LANGUES</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>450</Text>
-            <Text style={styles.statLabel}>POINTS</Text>
+            <Text style={styles.statValue}>{storyCount}</Text>
+            <Text style={styles.statLabel}>RÉCITS</Text>
           </View>
         </View>
 
@@ -65,11 +80,11 @@ export const ProfileScreen = ({ navigation }: any) => {
             <Text style={styles.menuText}>Mes récits favoris</Text>
             <MaterialCommunityIcons name="chevron-right" size={20} color={colors.borderDark} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <MaterialCommunityIcons name="shield-check-outline" size={22} color={colors.primary} />
-            <Text style={styles.menuText}>Mes badges & titres</Text>
-            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.borderDark} />
-          </TouchableOpacity>
+          <View style={styles.menuItem}>
+            <MaterialCommunityIcons name="shield-check-outline" size={22} color={colors.textLight} />
+            <Text style={[styles.menuText, styles.menuTextMuted]}>Mes badges & titres</Text>
+            <Text style={styles.soonTag}>BIENTÔT</Text>
+          </View>
           
           <Text style={styles.sectionTitle}>PARAMÈTRES</Text>
           <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('EditProfile')}>
@@ -77,11 +92,11 @@ export const ProfileScreen = ({ navigation }: any) => {
             <Text style={styles.menuText}>Modifier mon identité</Text>
             <MaterialCommunityIcons name="chevron-right" size={20} color={colors.borderDark} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <MaterialCommunityIcons name="bell-outline" size={22} color={colors.textMid} />
-            <Text style={styles.menuText}>Notifications</Text>
-            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.borderDark} />
-          </TouchableOpacity>
+          <View style={styles.menuItem}>
+            <MaterialCommunityIcons name="bell-outline" size={22} color={colors.textLight} />
+            <Text style={[styles.menuText, styles.menuTextMuted]}>Notifications</Text>
+            <Text style={styles.soonTag}>BIENTÔT</Text>
+          </View>
 
           <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
             <View style={styles.logoutLine} />
@@ -154,6 +169,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: colors.text,
   },
+  email: {
+    fontFamily: 'Poppins_300Light',
+    fontSize: 12,
+    color: colors.textLight,
+    marginTop: 4,
+  },
   rankBadge: {
     marginTop: 10,
     paddingHorizontal: 12,
@@ -221,6 +242,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
     marginLeft: 15,
+  },
+  menuTextMuted: {
+    color: colors.textLight,
+  },
+  soonTag: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 8,
+    letterSpacing: 1,
+    color: colors.textLight,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
   },
   logoutBtn: {
     marginTop: 60,

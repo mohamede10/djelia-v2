@@ -1,10 +1,11 @@
-  import React, { useState, useRef } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, Animated, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, StyleSheet, FlatList, Dimensions, Animated, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { colors } from '../../config/colors';
 import { BogolanPattern, KoraIcon, TamTamIcon, HutIcon } from '../../components/common/AfricanPattern';
+import { markOnboardingAsSeen } from '../../services/storageService';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const slides = [
   {
@@ -67,13 +68,18 @@ export const OnboardingScreen = ({ navigation }: any) => {
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
 
+  const finish = async () => {
+    await markOnboardingAsSeen();
+    navigation.replace('Login');
+  };
+
   const handleNext = () => {
     if (currentIndex < slides.length - 1) {
       const nextIndex = currentIndex + 1;
       flatListRef.current?.scrollToIndex({ index: nextIndex });
       setCurrentIndex(nextIndex);
     } else {
-      navigation.replace('Login');
+      finish();
     }
   };
 
@@ -81,7 +87,11 @@ export const OnboardingScreen = ({ navigation }: any) => {
     <View style={styles.container}>
       <BackgroundManager scrollX={scrollX} />
       <BogolanPattern opacity={0.1} color={colors.white} />
-      
+
+      <TouchableOpacity style={styles.skipBtn} onPress={finish}>
+        <Text style={styles.skipText}>PASSER</Text>
+      </TouchableOpacity>
+
       <FlatList
         ref={flatListRef}
         data={slides}
@@ -156,6 +166,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
+  },
+  skipBtn: {
+    position: 'absolute',
+    top: 60,
+    right: 30,
+    zIndex: 10,
+    padding: 8,
+  },
+  skipText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 10,
+    letterSpacing: 2,
+    color: 'rgba(255,255,255,0.7)',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

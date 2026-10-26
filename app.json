@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "djelia",
+    "name": "Djelia",
     "slug": "djelia",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,11 +9,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.djelia.app"
     },
     "android": {
+      "package": "com.djelia.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FDFBF7",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -32,10 +34,21 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#FDFBF7",
           "dark": {
-            "backgroundColor": "#000000"
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#1B263B"
           }
+        }
+      ],
+      "expo-secure-store",
+      "expo-font",
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Djelia accède à vos photos uniquement pour personnaliser votre profil.",
+          "cameraPermission": "Djelia utilise l’appareil photo uniquement pour votre photo de profil."
         }
       ]
     ],

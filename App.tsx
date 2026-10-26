@@ -1,6 +1,6 @@
 import React from 'react';
 import { PaperProvider } from 'react-native-paper';
-import { useFonts, Poppins_300Light, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import { useFonts, Poppins_300Light, Poppins_400Regular, Poppins_400Regular_Italic, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { 
   PlayfairDisplay_400Regular, 
   PlayfairDisplay_700Bold 
@@ -17,6 +17,7 @@ export default function App() {
   const [fontsLoaded] = useFonts({
     Poppins_300Light,
     Poppins_400Regular,
+    Poppins_400Regular_Italic,
     Poppins_700Bold,
     PlayfairDisplay_400Regular,
     PlayfairDisplay_700Bold,

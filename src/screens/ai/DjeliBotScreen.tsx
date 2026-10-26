@@ -7,7 +7,7 @@ import { colors } from '../../config/colors';
 import { BogolanPattern, DjeliaLogo } from '../../components/common/AfricanPattern';
 import { useAppContext } from '../../store/AppProvider';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 type Message = { id: string; text: string; sender: 'user' | 'bot'; };
 
@@ -30,6 +30,8 @@ export const DjeliBotScreen = ({ route }: any) => {
     if (initialMessage) {
       send(initialMessage);
     }
+    // L'effet ne doit se déclencher que lorsqu'un nouveau message initial arrive.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMessage]);
 
   const send = (text?: string) => {
@@ -150,6 +152,19 @@ export const DjeliBotScreen = ({ route }: any) => {
       </Animated.View>
 
       <View style={styles.inputAreaWrapper}>
+        {messages.length === 1 && !isTyping && (
+          <View style={styles.suggestionsRow}>
+            {['Qui es-tu ?', 'Soundiata Keïta', 'Le masque Nimba'].map((suggestion) => (
+              <TouchableOpacity
+                key={suggestion}
+                style={styles.suggestionChip}
+                onPress={() => send(suggestion)}
+              >
+                <Text style={styles.suggestionText}>{suggestion}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
         <View style={styles.inputArea}>
           <TextInput
             style={styles.input}
@@ -255,6 +270,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
     backgroundColor: 'transparent',
+  },
+  suggestionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  suggestionChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  suggestionText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
+    color: colors.primary,
   },
   inputArea: {
     flexDirection: 'row',

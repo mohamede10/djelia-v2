@@ -20,7 +20,7 @@ export type Book = {
   title: string;
   author: string;
   publisher: string;
-  audioUrl?: string;
+  audioUrl?: any;
   pdfUrl?: string;
   category: 'roman' | 'conte' | 'poésie' | 'histoire' | 'jeunesse';
   language: string;
@@ -39,8 +39,6 @@ const MOCK_BOOKS: Book[] = [
     title: 'Les Soleils des Indépendances',
     author: 'Ahmadou Kourouma',
     publisher: 'Éditions Ganndal',
-    audioUrl: 'https://example.com/audio1.mp3',
-    pdfUrl: 'https://example.com/livre1.pdf',
     category: 'roman',
     language: 'Français',
     duration: '4h 10min',
@@ -53,13 +51,13 @@ const MOCK_BOOKS: Book[] = [
   },
   {
     id: '2',
-    title: 'Le Maître de la Parole',
-    author: 'Camara Laye',
+    title: 'Soundiata Keïta : L’Éveil du Lion',
+    author: 'Griots du Manden',
     publisher: 'Éditions Guinée Livres',
-    audioUrl: 'https://example.com/audio2.mp3',
+    audioUrl: require('../../../assets/audio/soundiatastory.mp3'),
     category: 'conte',
     language: 'Français / Mandingue',
-    duration: '2h 45min',
+    duration: '14 min',
     pages: 320,
     isPremium: false,
     description: "L'épopée de Soundiata Keïta racontée par un griot, entre mythe et histoire.",
@@ -72,8 +70,6 @@ const MOCK_BOOKS: Book[] = [
     title: 'Contes de la Savane',
     author: 'Collectif Griots Guinée',
     publisher: 'Éditions Ganndal',
-    audioUrl: 'https://example.com/audio3.mp3',
-    pdfUrl: 'https://example.com/livre3.pdf',
     category: 'jeunesse',
     language: 'Français / Pular',
     duration: '1h 30min',
@@ -89,7 +85,6 @@ const MOCK_BOOKS: Book[] = [
     title: 'Poèmes du Fouta',
     author: 'Ibrahima Diallo',
     publisher: 'Éditions Sahel',
-    audioUrl: 'https://example.com/audio4.mp3',
     category: 'poésie',
     language: 'Pular / Français',
     duration: '55min',
@@ -105,7 +100,6 @@ const MOCK_BOOKS: Book[] = [
     title: 'Histoire de la Guinée',
     author: 'Lanciné Sylla',
     publisher: 'Éditions Ganndal',
-    pdfUrl: 'https://example.com/livre5.pdf',
     category: 'histoire',
     language: 'Français',
     pages: 280,
@@ -120,7 +114,6 @@ const MOCK_BOOKS: Book[] = [
     title: 'Sagesses Peules',
     author: 'Amadou Hampâté Bâ',
     publisher: 'Éditions Sahel',
-    audioUrl: 'https://example.com/audio6.mp3',
     category: 'conte',
     language: 'Pular / Français',
     duration: '3h 20min',
@@ -135,12 +128,20 @@ const MOCK_BOOKS: Book[] = [
 
 const CATEGORIES = ['Tous', 'Roman', 'Conte', 'Poésie', 'Histoire', 'Jeunesse'];
 
-const BookCover = ({ book }: { book: Book }) => (
-  <View style={[coverStyles.container, { backgroundColor: book.coverColor }]}>
+export const BookCover = ({
+  book,
+  height = 160,
+  iconSize = 40,
+}: {
+  book: Book;
+  height?: number;
+  iconSize?: number;
+}) => (
+  <View style={[coverStyles.container, { height, backgroundColor: book.coverColor }]}>
     <View style={[coverStyles.circle1, { borderColor: book.coverAccent + '30' }]} />
     <View style={[coverStyles.circle2, { borderColor: book.coverAccent + '20' }]} />
     <View style={[coverStyles.stripe, { backgroundColor: book.coverAccent }]} />
-    <MaterialCommunityIcons name={book.coverIcon as any} size={40} color={book.coverAccent} style={coverStyles.icon} />
+    <MaterialCommunityIcons name={book.coverIcon as any} size={iconSize} color={book.coverAccent} style={coverStyles.icon} />
     {book.isPremium && (
       <View style={coverStyles.premiumDot}>
         <MaterialCommunityIcons name="crown" size={10} color={book.coverColor} />
@@ -393,6 +394,7 @@ const featuredStyles = StyleSheet.create({
 
 export const BooksScreen = ({ navigation }: any) => {
   const [activeCategory, setActiveCategory] = useState('Tous');
+  const [sortByTitle, setSortByTitle] = useState(false);
 
   const featured = MOCK_BOOKS[0];
 
@@ -405,6 +407,9 @@ export const BooksScreen = ({ navigation }: any) => {
 
   const showFeatured = activeCategory === 'Tous';
   const gridData = showFeatured ? filtered.filter(b => b.id !== featured.id) : filtered;
+  const displayedBooks = sortByTitle
+    ? [...gridData].sort((a, b) => a.title.localeCompare(b.title, 'fr'))
+    : gridData;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -415,13 +420,24 @@ export const BooksScreen = ({ navigation }: any) => {
           <Text style={styles.headerSub}>Djelia</Text>
           <Text style={styles.headerTitle}>Bibliothèque</Text>
         </View>
-        <TouchableOpacity style={styles.headerBtn}>
-          <MaterialCommunityIcons name="tune-variant" size={22} color={colors.text} />
+        <TouchableOpacity
+          style={[styles.headerBtn, sortByTitle && styles.headerBtnActive]}
+          onPress={() => setSortByTitle((value) => !value)}
+          accessibilityRole="button"
+          accessibilityLabel={
+            sortByTitle ? 'Désactiver le tri alphabétique' : 'Trier les livres par titre'
+          }
+        >
+          <MaterialCommunityIcons
+            name="sort-alphabetical-ascending"
+            size={22}
+            color={sortByTitle ? colors.primary : colors.text}
+          />
         </TouchableOpacity>
       </View>
 
       <FlatList
-        data={gridData}
+        data={displayedBooks}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={styles.row}
@@ -477,7 +493,7 @@ export const BooksScreen = ({ navigation }: any) => {
 
       <View style={styles.partnerBar}>
         <MaterialCommunityIcons name="handshake-outline" size={14} color={colors.gold} />
-        <Text style={styles.partnerText}>En partenariat avec les maisons d'édition guinéennes</Text>
+        <Text style={styles.partnerText}>En partenariat avec les maisons d’édition guinéennes</Text>
       </View>
     </SafeAreaView>
   );
@@ -515,6 +531,10 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerBtnActive: {
+    backgroundColor: colors.primary + '12',
+    borderColor: colors.primary,
   },
   cats: { paddingHorizontal: 16, gap: 8 },
   catChip: {

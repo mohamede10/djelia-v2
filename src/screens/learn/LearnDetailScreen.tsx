@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, IconButton } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import * as Speech from 'expo-speech';
 import { colors } from '../../config/colors';
 import { BogolanPattern } from '../../components/common/AfricanPattern';
 
@@ -38,6 +39,12 @@ export const LearnDetailScreen = ({ route, navigation }: any) => {
   const { language } = route.params;
   const data = DIALECT_DATA[language] || { words: [] };
 
+  const speak = (text: string) => {
+    // La synthèse vocale française donne une approximation utile de la prononciation.
+    Speech.stop();
+    Speech.speak(text, { language: 'fr-FR', rate: 0.8, pitch: 1.0 });
+  };
+
   return (
     <View style={styles.container}>
       <BogolanPattern opacity={0.03} />
@@ -57,7 +64,12 @@ export const LearnDetailScreen = ({ route, navigation }: any) => {
                 <Text style={styles.localText}>{item.local}</Text>
                 <Text style={styles.phoneticText}>{item.phonetic}</Text>
               </View>
-              <TouchableOpacity style={styles.audioBtn}>
+              <TouchableOpacity
+                style={styles.audioBtn}
+                onPress={() => speak(item.local)}
+                accessibilityRole="button"
+                accessibilityLabel={`Écouter la prononciation de ${item.local}`}
+              >
                 <Text style={styles.audioEmoji}>🔊</Text>
               </TouchableOpacity>
             </View>
@@ -75,7 +87,7 @@ export const LearnDetailScreen = ({ route, navigation }: any) => {
         <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>Le saviez-vous ?</Text>
           <Text style={styles.infoText}>
-            La transmission d'une langue est le premier pas vers la préservation d'une culture. 
+            La transmission d’une langue est le premier pas vers la préservation d’une culture. 
             En apprenant ces quelques mots, vous honorez la mémoire des anciens.
           </Text>
         </View>

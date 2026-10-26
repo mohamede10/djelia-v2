@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, Animated } from 'react-native';
 import { colors } from '../../config/colors';
-
-const { width } = Dimensions.get('window');
 
 export const Skeleton = ({ width: w, height: h, style }: { width: any, height: any, style?: any }) => {
   const opacity = useRef(new Animated.Value(0.3)).current;
@@ -14,7 +12,7 @@ export const Skeleton = ({ width: w, height: h, style }: { width: any, height: a
         Animated.timing(opacity, { toValue: 0.3, duration: 800, useNativeDriver: true }),
       ])
     ).start();
-  }, []);
+  }, [opacity]);
 
   return (
     <Animated.View 

@@ -5,7 +5,7 @@ import { ScreenHeader } from '../../components/common/ScreenHeader';
 import { colors } from '../../config/colors';
 import { BogolanPattern } from '../../components/common/AfricanPattern';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const PRODUCTS = [
   {

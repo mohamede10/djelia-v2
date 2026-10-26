@@ -7,4 +7,11 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+  {
+    // Fichiers du template Expo d'origine (expo-router), non utilisés par l'application.
+    files: ['components/**/*.{ts,tsx}', 'hooks/**/*.{ts,tsx}', 'constants/**/*.{ts,tsx}'],
+    rules: {
+      'import/no-unresolved': 'off',
+    },
+  },
 ]);

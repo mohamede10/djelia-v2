@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { colors } from '../../config/colors';
 import { BogolanPattern } from '../../components/common/AfricanPattern';
@@ -22,7 +22,7 @@ export const ProductDetailScreen = ({ route, navigation }: any) => {
           <View style={styles.divider} />
           
           <Text style={styles.description}>
-            Cet objet unique est le fruit d'un savoir-faire ancestral transmis de génération en génération. 
+            Cet objet unique est le fruit d’un savoir-faire ancestral transmis de génération en génération. 
             Chaque détail raconte une histoire, chaque courbe est un hommage à notre culture. 
             En achetant ce produit, vous soutenez directement les artisans locaux et la préservation de notre patrimoine.
           </Text>

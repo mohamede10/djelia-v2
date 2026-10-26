@@ -73,7 +73,7 @@ export const LearnScreen = ({ navigation }: any) => {
               </View>
               <Text style={styles.langDesc}>{item.description}</Text>
               <View style={styles.footerRow}>
-                <Text style={[styles.actionText, { color: item.color }]}>S'INITIER AU DIALECTE</Text>
+                <Text style={[styles.actionText, { color: item.color }]}>S’INITIER AU DIALECTE</Text>
                 <MaterialCommunityIcons name="arrow-right" size={16} color={item.color} />
               </View>
             </View>

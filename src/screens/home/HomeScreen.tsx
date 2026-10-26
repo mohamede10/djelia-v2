@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Image, Dimensions, Animated } from 'react-native';
-import { ActivityIndicator, Text } from 'react-native-paper';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Text } from 'react-native-paper';import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StoryCard } from '../../components/common/StoryCard';
 import { getStories, Story } from '../../services/dataService';
@@ -9,7 +8,7 @@ import { colors } from '../../config/colors';
 import { BogolanPattern, KoraIcon, TamTamIcon, HutIcon, AIOrganicIcon } from '../../components/common/AfricanPattern';
 import { SkeletonHero, SkeletonCard } from '../../components/common/Skeleton';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -65,8 +64,10 @@ export const HomeScreen = ({ navigation }: Props) => {
     );
   }
 
-  const featuredStory = stories[0];
-  const otherStories = stories.slice(1);
+  const featuredIndex =
+    stories.length > 0 ? Math.floor(Date.now() / 86_400_000) % stories.length : 0;
+  const featuredStory = stories[featuredIndex];
+  const otherStories = stories.filter((_, index) => index !== featuredIndex);
 
   return (
     <View style={styles.container}>
@@ -125,7 +126,7 @@ export const HomeScreen = ({ navigation }: Props) => {
         {/* SECTION : SAGESSE ANCESTRALE (STÈLE STYLE) */}
         <View style={styles.quoteCard}>
           <View style={styles.quoteDecor} />
-          <Text style={styles.quoteText}>"La parole est le vêtement de la pensée."</Text>
+          <Text style={styles.quoteText}>« La parole est le vêtement de la pensée. »</Text>
           <Text style={styles.quoteAuthor}>SAGESSE MANDINGUE</Text>
         </View>
 

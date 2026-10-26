@@ -1,20 +1,30 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../config/colors';
-
-const { width } = Dimensions.get('window');
 
 type Props = {
   title: string;
   subtitle?: string;
   rightElement?: React.ReactNode;
+  onBack?: () => void;
 };
 
-export const ScreenHeader = ({ title, subtitle, rightElement }: Props) => {
+export const ScreenHeader = ({ title, subtitle, rightElement, onBack }: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
+        {onBack && (
+          <TouchableOpacity
+            onPress={onBack}
+            style={styles.backBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Revenir en arrière"
+          >
+            <MaterialCommunityIcons name="arrow-left" size={22} color={colors.primary} />
+          </TouchableOpacity>
+        )}
         <View style={styles.textContainer}>
           <Text style={styles.title}>{title}</Text>
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
@@ -37,6 +47,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+    marginBottom: 4,
   },
   textContainer: {
     flex: 1,

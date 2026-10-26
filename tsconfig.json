@@ -11,5 +11,12 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "components",
+    "hooks",
+    "constants",
+    "scripts"
   ]
 }

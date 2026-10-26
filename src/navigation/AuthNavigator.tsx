@@ -4,6 +4,7 @@ import { SplashScreen } from '../screens/auth/SplashScreen';
 import { OnboardingScreen } from '../screens/auth/OnboardingScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SignupScreen } from '../screens/auth/SignupScreen';
+import { ResetPasswordScreen } from '../screens/auth/ResetPasswordScreen';
 import { colors } from '../config/colors';
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,11 @@ export const AuthNavigator = () => {
       <Stack.Screen
         name="Signup"
         component={SignupScreen}
+        options={{ contentStyle: { backgroundColor: colors.background } }}
+      />
+      <Stack.Screen
+        name="ResetPassword"
+        component={ResetPasswordScreen}
         options={{ contentStyle: { backgroundColor: colors.background } }}
       />
     </Stack.Navigator>
