@@ -1,29 +1,30 @@
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { auth, isFirebaseConfigured, storage } from '../config/firebase';
 
 /**
  * Gestion de la photo de profil.
  *
+ * - L'image est d'abord redimensionnée et compressée (480 px, JPEG) pour
+ *   rester légère, conformément au cahier des charges (< 500 Ko).
  * - Firebase configuré : la photo est envoyée dans Storage
  *   (`users/{userId}/avatar_<timestamp>.jpg`) et l'URL publique est conservée
  *   dans le profil Firestore.
  * - Mode démo : la photo est copiée dans le dossier de documents de
- *   l'application (mobile) ou compressée en data URI (web), puis enregistrée
- *   avec le profil local. Elle survit donc au rechargement.
+ *   l'application (mobile) ou stockée en data URI compressée (web), puis
+ *   enregistrée avec le profil local. Elle survit donc au rechargement.
  */
 
 const AVATAR_DIRECTORY = `${FileSystem.documentDirectory ?? ''}avatars/`;
 const MAX_DIMENSION = 480;
 
-const extFromMimeType = (mimeType?: string | null): string => {
-  if (!mimeType) return 'jpg';
-  if (mimeType.includes('png')) return 'png';
-  if (mimeType.includes('webp')) return 'webp';
-  if (mimeType.includes('heic') || mimeType.includes('heif')) return 'heic';
-  return 'jpg';
+type PreparedAvatar = {
+  uri: string;
+  mimeType: string;
+  base64?: string;
 };
 
 const BASE64_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -52,8 +53,40 @@ const base64ToBytes = (input: string): Uint8Array => {
 };
 
 /**
+ * Redimensionne et compresse l'image. En cas d'échec du module natif, on
+ * utilise l'image d'origine (la galerie a déjà appliqué un recadrage carré).
+ */
+const prepareAvatar = async (
+  asset: ImagePicker.ImagePickerAsset
+): Promise<PreparedAvatar> => {
+  try {
+    const context = ImageManipulator.manipulate(asset.uri);
+    context.resize({ width: MAX_DIMENSION });
+    const image = await context.renderAsync();
+    const saved = await image.saveAsync({
+      compress: 0.7,
+      format: SaveFormat.JPEG,
+      base64: Platform.OS === 'web',
+    });
+
+    return {
+      uri: saved.uri,
+      mimeType: 'image/jpeg',
+      base64: saved.base64 ?? undefined,
+    };
+  } catch (error) {
+    console.warn('Avatar compression failed, using original image:', error);
+    return {
+      uri: asset.uri,
+      mimeType: asset.mimeType || 'image/jpeg',
+      base64: asset.base64 ?? undefined,
+    };
+  }
+};
+
+/**
  * Compresse et recadre une image en carré directement dans le navigateur.
- * Évite de dépasser le quota du localStorage avec une photo de téléphone.
+ * Filet de sécurité si la manipulation native n'est pas disponible sur le web.
  */
 const compressDataUriForWeb = (dataUri: string): Promise<string> =>
   new Promise((resolve) => {
@@ -103,15 +136,13 @@ const compressDataUriForWeb = (dataUri: string): Promise<string> =>
     image.src = dataUri;
   });
 
-const readAssetBytes = async (
-  asset: ImagePicker.ImagePickerAsset
-): Promise<Uint8Array> => {
+const readImageBytes = async (uri: string): Promise<Uint8Array> => {
   if (Platform.OS === 'web') {
-    const response = await fetch(asset.uri);
+    const response = await fetch(uri);
     return new Uint8Array(await response.arrayBuffer());
   }
 
-  const base64 = await FileSystem.readAsStringAsync(asset.uri, {
+  const base64 = await FileSystem.readAsStringAsync(uri, {
     encoding: FileSystem.EncodingType.Base64,
   });
   return base64ToBytes(base64);
@@ -132,8 +163,8 @@ export const pickAvatarFromLibrary = async (): Promise<ImagePicker.ImagePickerAs
     mediaTypes: ['images'],
     allowsEditing: true,
     aspect: [1, 1],
-    quality: 0.7,
-    base64: Platform.OS === 'web',
+    quality: 0.8,
+    base64: false,
   });
 
   if (result.canceled || !result.assets?.length) return null;
@@ -148,6 +179,7 @@ export const persistAvatar = async (
   asset: ImagePicker.ImagePickerAsset,
   userId: string
 ): Promise<string> => {
+  const prepared = await prepareAvatar(asset);
   const authenticatedUserId = auth.currentUser?.uid;
 
   if (
@@ -158,14 +190,10 @@ export const persistAvatar = async (
     !userId.startsWith('local_')
   ) {
     try {
-      const bytes = await readAssetBytes(asset);
-      const extension = extFromMimeType(asset.mimeType);
-      const storageRef = ref(
-        storage,
-        `users/${userId}/avatar_${Date.now()}.${extension}`
-      );
+      const bytes = await readImageBytes(prepared.uri);
+      const storageRef = ref(storage, `users/${userId}/avatar_${Date.now()}.jpg`);
       await uploadBytes(storageRef, bytes, {
-        contentType: asset.mimeType || 'image/jpeg',
+        contentType: prepared.mimeType,
       });
       return await getDownloadURL(storageRef);
     } catch (error) {
@@ -174,9 +202,9 @@ export const persistAvatar = async (
   }
 
   if (Platform.OS === 'web') {
-    const dataUri = asset.base64
-      ? `data:image/jpeg;base64,${asset.base64}`
-      : asset.uri;
+    const dataUri = prepared.base64
+      ? `data:image/jpeg;base64,${prepared.base64}`
+      : prepared.uri;
     return compressDataUriForWeb(dataUri);
   }
 
@@ -186,9 +214,7 @@ export const persistAvatar = async (
     // Le dossier existe déjà : rien à faire.
   });
 
-  const destination = `${AVATAR_DIRECTORY}avatar_${Date.now()}.${extFromMimeType(
-    asset.mimeType
-  )}`;
-  await FileSystem.copyAsync({ from: asset.uri, to: destination });
+  const destination = `${AVATAR_DIRECTORY}avatar_${Date.now()}.jpg`;
+  await FileSystem.copyAsync({ from: prepared.uri, to: destination });
   return destination;
 };

@@ -49,7 +49,7 @@ Ce dépôt contient le **MVP Phase 1** décrit dans le cahier des charges (`cahi
 | Animations | React Native Animated, Reanimated, SVG |
 | Backend | Firebase Auth, Firestore, Storage |
 | Audio | expo-av (lecture), expo-speech (prononciation) |
-| Photos | expo-image-picker (galerie + recadrage carré) |
+| Photos | expo-image-picker (galerie + recadrage carré) + expo-image-manipulator (480 px, < 500 Ko) |
 | Stockage local | expo-secure-store (mobile) / localStorage (web) |
 
 ---
