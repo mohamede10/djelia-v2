@@ -409,3 +409,5 @@ eas build --platform ios --profile production
 ## 10. Licence
 
 Projet Djelia — Hackathon Ansuten. Tous droits réservés.
+#   d j e l i a - v 2  
+ 
