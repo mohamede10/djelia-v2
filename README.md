@@ -258,6 +258,7 @@ storage.rules                Règles Storage
 | `npm run android` | Lance sur Android |
 | `npm run ios` | Lance sur iOS |
 | `npm run web` | Lance la version web |
+| `npm run build` | Génère le build web statique dans `dist/` |
 | `npm run lint` | Analyse ESLint |
 | `npm test` | Exécute la suite Jest |
 | `npm run test:watch` | Tests en mode watch |
@@ -295,7 +296,7 @@ Les tests mockent Firebase : ils ne nécessitent ni réseau ni projet distant.
 npx tsc --noEmit
 npm run lint
 npm test
-npx expo export --platform web
+npm run build
 ```
 
 3. Déployer les règles Firestore / Storage :
@@ -307,12 +308,68 @@ firebase deploy --only firestore:rules,storage
 ### 7.2 Web
 
 ```bash
-npx expo export --platform web
+npm run build
 ```
 
 Le dossier `dist/` contient l'application statique. Il peut être publié sur
 Firebase Hosting, Netlify, Vercel ou tout hébergeur statique. Ajouter l'URL du
 site aux URI de redirection OAuth autorisées.
+
+#### Déploiement Vercel
+
+Le fichier `vercel.json` est déjà prêt :
+
+```json
+{
+  "framework": null,
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+```
+
+1. Pousser le dépôt sur GitHub, puis dans Vercel : **Add New → Project**.
+2. Choisir le dépôt `Dje-lia`. Laisser la **Root Directory** vide si le
+   `package.json` est à la racine du dépôt.
+3. Vercel lit `vercel.json` : commande `npm run build`, dossier `dist`.
+   Ne pas définir un autre dossier de sortie dans le dashboard.
+4. Ajouter les variables d'environnement dans **Settings → Environment
+   Variables** (Production **et** Preview) :
+
+```
+EXPO_PUBLIC_FIREBASE_API_KEY
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN
+EXPO_PUBLIC_FIREBASE_PROJECT_ID
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+EXPO_PUBLIC_FIREBASE_APP_ID
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
+EXPO_PUBLIC_FACEBOOK_APP_ID
+```
+
+5. **Redéployer** après toute modification de variable : Expo les intègre au
+   bundle au moment du build, pas à l'exécution.
+6. Dans Firebase Console → **Authentication → Settings → Authorized domains**,
+   ajouter le domaine Vercel (`xxx.vercel.app`) et le domaine personnalisé.
+7. Dans Google Cloud Console et Facebook Developers, ajouter l'URL Vercel aux
+   origines / URI de redirection OAuth autorisées.
+
+Erreurs Vercel fréquentes :
+
+| Erreur | Cause | Correction |
+| --- | --- | --- |
+| `Missing script: "build"` | Ancien projet sans script `build` | `npm run build` est maintenant défini |
+| `No Output Directory named "dist"` | Dossier de sortie mal configuré | Garder `outputDirectory: "dist"` |
+| 404 après actualisation d'une route | Pas de fallback SPA | La réécriture vers `/index.html` est fournie |
+| L'app reste en **mode démo** | Variables `EXPO_PUBLIC_*` absentes | Les ajouter dans Vercel puis redéployer |
+| `auth/unauthorized-domain` | Domaine absent de Firebase | Ajouter le domaine Vercel dans Authentication |
+| `redirect_uri_mismatch` | URL absente de Google/Facebook | Ajouter l'URL Vercel aux URI autorisées |
+| Écran blanc | Erreur JavaScript au chargement | Ouvrir la console du navigateur et vérifier le build Vercel |
+
+> Pour un test local proche de la production :
+> `npm run build` puis servir `dist/` avec un fallback vers `index.html`.
+
 
 ### 7.3 Android / iOS avec EAS
 
