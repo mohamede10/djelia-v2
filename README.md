@@ -16,6 +16,7 @@ Ce dépôt contient le **MVP Phase 1** décrit dans le cahier des charges (`cahi
 | Récits en base | 50 (collection `stories`) |
 | Auth activée | E-mail / Mot de passe |
 | Domaine autorisé Auth | `djelia-v2.vercel.app` |
+| DjeliBot | Gemini 2.5 Flash via `/api/chat` (clé `GEMINI_API_KEY` à définir dans Vercel) |
 
 Les variables `EXPO_PUBLIC_*` sont configurées dans Vercel (Production, Preview et
 Development). Comme Expo les intègre au bundle **au moment du build**, toute
@@ -59,7 +60,9 @@ modification nécessite un redéploiement.
 - Déconnexion
 
 ### Modules complémentaires
-- **DjeliBot** : griot conversationnel (moteur de réponses scénarisé, prêt à être branché sur une IA)
+- **DjeliBot** : griot conversationnel branché sur Google Gemini via une fonction
+  serverless, avec recherche dans les 50 récits, citation des sources et repli
+  local explicite si l'IA est indisponible
 - **Langues** : initiation au Mandingue, au Pular et au Soussou avec prononciation vocale
 - **Livres** : catalogue éditorial avec lecture audio intégrée et ouverture des PDF
   (maquette ; les PDF s'ouvrent dans le lecteur de l'appareil)
@@ -263,6 +266,50 @@ Les règles fournies :
 - chaque utilisateur ne gère que ses propres favoris ;
 - upload de photo limité au propriétaire, 5 Mo, type image.
 
+### 4.6 DjeliBot (IA Gemini)
+
+DjeliBot n'est pas un simple moteur de mots-clés : l'application appelle une
+fonction serverless (`api/chat.ts`) qui interroge **Google Gemini** en lui
+fournissant les récits du catalogue les plus pertinents (recherche plein texte
+sur les 50 récits Firestore, avec repli sur `src/data/stories.ts`).
+
+```
+Navigateur / mobile
+   └─ src/services/aiService.ts ──POST /api/chat──► api/chat.ts (Vercel)
+                                                      ├─ retrieveStories()  → catalogue
+                                                      ├─ buildSystemPrompt()
+                                                      └─ Gemini generateContent
+```
+
+**Sécurité** : la clé Gemini reste côté serveur. Elle ne doit **jamais** être
+préfixée par `EXPO_PUBLIC_` (Expo intègre ces variables au bundle web).
+
+Variables d'environnement à définir dans Vercel (Production, Preview,
+Development) :
+
+| Variable | Rôle |
+| --- | --- |
+| `GEMINI_API_KEY` | Clé Google AI Studio (**secrète, serveur uniquement**) |
+| `GEMINI_MODEL` | Modèle utilisé (défaut : `gemini-2.5-flash`) |
+| `EXPO_PUBLIC_AI_API_URL` | URL absolue de l'API pour les builds natifs (le web utilise la même origine) |
+
+Créer la clé sur <https://aistudio.google.com/apikey>, puis :
+
+```bash
+# Vercel CLI (ou dashboard → Settings → Environment Variables)
+vercel env add GEMINI_API_KEY production
+vercel env add GEMINI_MODEL production
+vercel --prod
+```
+
+**Repli hors-ligne** : si l'API est indisponible (clé absente, quota, réseau),
+l'écran utilise `src/services/djeliBotLocal.ts` et affiche explicitement
+« Réponse locale : le serveur IA est momentanément injoignable. » Aucune réponse
+locale n'est présentée comme une réponse du modèle.
+
+**Test local** de la fonction : `vercel dev` sert `/api/chat` en même temps que
+l'application web.
+
 ---
 
 ## 5. Structure du projet
@@ -270,6 +317,9 @@ Les règles fournies :
 ```
 App.tsx                      Point d'entrée (polices, thème, providers)
 eas.json                     Profils de build EAS (development, preview, production)
+vercel.json                  Build web + fonction serverless + fallback SPA
+api/
+  chat.ts                    Fonction serverless DjeliBot (Gemini + retrieval)
 src/
   config/                    Couleurs, thème Paper, Firebase, OAuth
   navigation/                Auth, tabs principaux, stacks par module
@@ -288,6 +338,9 @@ src/
     common/                  StoryCard, en-têtes, EmptyState, ErrorBoundary, motifs, skeletons
   services/
     __tests__/               Tests unitaires Jest
+    aiService.ts             Client de /api/chat (web même origine, mobile URL absolue)
+    djeliBotKnowledge.ts     Retrieval pur dans les 50 récits + prompt système
+    djeliBotLocal.ts         Réponses locales de secours (hors-ligne)
     authService.ts           Auth email, profils OAuth, messages d'erreur
     dataService.ts           Catalogue de 50 récits, recherche, seed, favoris
     storageService.ts        Session et favoris locaux
@@ -375,6 +428,7 @@ Le fichier `vercel.json` est déjà prêt :
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": { "api/chat.ts": { "maxDuration": 30 } },
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```
@@ -396,6 +450,9 @@ EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 EXPO_PUBLIC_FIREBASE_APP_ID
 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
 EXPO_PUBLIC_FACEBOOK_APP_ID
+GEMINI_API_KEY
+GEMINI_MODEL
+EXPO_PUBLIC_AI_API_URL
 ```
 
 5. **Redéployer** après toute modification de variable : Expo les intègre au

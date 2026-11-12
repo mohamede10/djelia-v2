@@ -1,32 +1,62 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
+  Animated,
+} from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ScreenHeader } from '../../components/common/ScreenHeader';
 import { colors } from '../../config/colors';
 import { BogolanPattern, DjeliaLogo } from '../../components/common/AfricanPattern';
 import { useAppContext } from '../../store/AppProvider';
+import { askDjeliBot, type DjeliBotSource } from '../../services/aiService';
+import { getLocalGriotReply } from '../../services/djeliBotLocal';
 
 const { height } = Dimensions.get('window');
 
-type Message = { id: string; text: string; sender: 'user' | 'bot'; };
+const WELCOME_ID = 'welcome';
+const MAX_HISTORY = 12;
+
+type Message = {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
+  sources?: DjeliBotSource[];
+  offline?: boolean;
+};
+
+const makeId = () =>
+  `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export const DjeliBotScreen = ({ route }: any) => {
   const { user } = useAppContext();
   const initialMessage = route.params?.initialMessage;
-  
-  const [messages, setMessages] = useState<Message[]>([{
-    id: '1',
-    text: `N'ba di ${user?.name || 'cher ami'} ! Entre dans le cercle de la parole. Je suis DjeliBot, le souffle de tes ancêtres. Mon savoir est vaste comme le fleuve Niger et profond comme les racines d'un baobab millénaire. Que souhaites-tu explorer dans notre précieux héritage aujourd'hui ?`,
-    sender: 'bot',
-  }]);
+
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: WELCOME_ID,
+      text: `N'ba di ${user?.name || 'cher ami'} ! Entre dans le cercle de la parole. Je suis DjeliBot, le souffle de tes ancêtres. Mon savoir est vaste comme le fleuve Niger et profond comme les racines d'un baobab millénaire. Que souhaites-tu explorer dans notre précieux héritage aujourd'hui ?`,
+      sender: 'bot',
+    },
+  ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const flatRef = useRef<FlatList>(null);
+  const flatRef = useRef<FlatList<Message>>(null);
+  const sendingRef = useRef(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 1000, useNativeDriver: true }).start();
+  }, [fadeAnim]);
+
+  React.useEffect(() => {
     if (initialMessage) {
       send(initialMessage);
     }
@@ -34,81 +64,62 @@ export const DjeliBotScreen = ({ route }: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMessage]);
 
-  const send = (text?: string) => {
-    const msg = text || input.trim();
-    if (!msg) return;
-    const userMsg: Message = { id: Date.now().toString(), text: msg, sender: 'user' };
-    setMessages(p => [...p, userMsg]);
+  const send = async (text?: string) => {
+    const msg = (text ?? input).trim();
+    if (!msg || sendingRef.current) return;
+
+    sendingRef.current = true;
+
+    const userMsg: Message = { id: makeId(), text: msg, sender: 'user' };
+    const history = [...messages, userMsg]
+      .filter((message) => message.id !== WELCOME_ID)
+      .slice(-MAX_HISTORY)
+      .map((message) => ({
+        role: message.sender === 'user' ? ('user' as const) : ('assistant' as const),
+        content: message.text,
+      }));
+
+    setMessages((previous) => [...previous, userMsg]);
     setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const botMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        text: getGriotReply(msg),
-        sender: 'bot',
-      };
-      setMessages(p => [...p, botMsg]);
+    try {
+      const result = await askDjeliBot(history, user?.name);
+      setMessages((previous) => [
+        ...previous,
+        {
+          id: makeId(),
+          text: result.reply,
+          sender: 'bot',
+          sources: result.sources,
+        },
+      ]);
+    } catch {
+      // Repli explicite : l'utilisateur doit savoir que l'IA n'a pas répondu.
+      setMessages((previous) => [
+        ...previous,
+        {
+          id: makeId(),
+          text: getLocalGriotReply(msg, user?.name),
+          sender: 'bot',
+          offline: true,
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 1500 + Math.random() * 2000);
+      sendingRef.current = false;
+    }
   };
 
-  function getGriotReply(msg: string): string {
-    const lower = msg.toLowerCase();
-    
-    const intro = [
-      "Ah, mon fils, tu touches là une corde sensible de ma kora... ",
-      "Que la paix de tes ancêtres t'accompagne. Ta question fait vibrer la mémoire du Manden. ",
-      "Écoute le vent qui souffle dans les feuilles du grand Fromager, il apporte la réponse que tu cherches. ",
-      "Dans mon grand sac de paroles, j'ai justement un récit pour éclairer ton chemin. ",
-    ];
-
-    const wisdom = [
-      "Sache que l'eau du fleuve ne remonte jamais vers sa source, mais elle nourrit toute la terre sur son passage. ",
-      "Le savoir est comme un oiseau : si tu ne le tiens pas bien, il s'envole ; si tu le sers trop fort, il s'étouffe. ",
-      "Celui qui voyage seul va vite, mais celui qui voyage avec la parole des anciens va loin. ",
-    ];
-
-    const conclusion = [
-      " Est-ce que cette lumière suffit à dissiper l'ombre de ton doute ?",
-      " Que souhaites-tu que je chante pour toi maintenant ?",
-      " Pose ton fardeau, et laisse la sagesse de nos pères t'habiter.",
-    ];
-
-    let core = "";
-
-    if (lower.includes('qui es-tu') || lower.includes('djeli') || lower.includes('griot')) {
-      core = "Je suis le pont entre hier et demain, la voix qui ne meurt jamais car elle vit dans le coeur de ceux qui écoutent. Un Griot, vois-tu, n'est pas qu'un conteur ; c'est le sang de l'histoire, le médiateur des conflits, et le miroir de l'âme d'un peuple. Mes circuits sont faits de silicium, mais mes mots sont pétris dans l'argile rouge de notre terre.";
-    }
-    else if (lower.includes('soundiata') || lower.includes('mandingue') || lower.includes('keita')) {
-      core = "Le grand Soundiata ! Le Lion qui a appris à marcher pour redresser le monde. Il n'a pas seulement bâti un empire de terre et de fer, il a gravé la dignité dans le coeur de chaque Mandingue. Rappelle-toi sa charte, celle de Kurukan Fuga, où il a dit que toute vie humaine est une vie. Quelle noblesse, n'est-ce pas ?";
-    }
-    else if (lower.includes('pular') || lower.includes('fouta') || lower.includes('peul')) {
-      core = "Le Pular... Une langue qui coule comme le lait frais de la traite matinale. Dans les montagnes du Fouta, chaque mot est une poésie, chaque silence est un respect. Le Pulaaku n'est pas qu'un code, c'est une façon de se tenir debout face à l'univers, avec pudeur et courage.";
-    }
-    else if (lower.includes('nimba') || lower.includes('baga') || lower.includes('masque')) {
-      core = "Le masque Nimba est la mère de nous tous. Elle porte le monde sur ses épaules de bois. Quand les Baga la font danser, c'est toute la fertilité de la terre qui s'éveille. Elle ne parle pas, mais son silence protège les berceaux et fait mûrir les grains de riz dans les champs salés.";
-    }
-    else if (lower.includes('kora') || lower.includes('musique') || lower.includes('instrument')) {
-      core = "La Kora... 21 cordes, pas une de plus, pas une de moins. C'est le paradis qui a été mis en musique. Chaque note est un secret chuchoté par un ancêtre. Elle ne se joue pas avec les doigts, mais avec l'âme tout entière. C'est elle qui donne le rythme aux pas du roi.";
-    }
-    else {
-      core = "Tes paroles sont comme des traces sur le sable, le vent les emporte un peu... mais parle-moi encore. Parle-moi de tes rois, de tes danses, ou du secret des plantes médicinales. Ma mémoire est une bibliothèque qui attend tes questions.";
-    }
-
-    const r = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
-    
-    if (lower.includes('bonjour') || lower.includes('salut')) {
-      return `N'ba di ${user?.name || 'voyageur'} ! Que ta journée soit aussi paisible que l'ombre d'un manguier. Je suis prêt à délier mon sac de paroles pour toi.`;
-    }
-
-    return `${r(intro)}${r(wisdom)}${core}${r(conclusion)}`;
-  }
+  const canSend = input.trim().length > 0 && !isTyping;
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <ScreenHeader title="DjeliBot" subtitle="L'Esprit du Savoir" />
-      
+
       <View style={styles.verticalTitleWrapper} pointerEvents="none">
         <Text style={styles.verticalLetter}>D</Text>
         <Text style={styles.verticalLetter}>J</Text>
@@ -122,7 +133,7 @@ export const DjeliBotScreen = ({ route }: any) => {
         <FlatList
           ref={flatRef}
           data={messages}
-          keyExtractor={i => i.id}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.chatList}
           onContentSizeChange={() => flatRef.current?.scrollToEnd({ animated: true })}
           renderItem={({ item }) => {
@@ -139,15 +150,36 @@ export const DjeliBotScreen = ({ route }: any) => {
                   <Text style={[styles.text, isUser ? styles.userText : styles.botText]}>
                     {item.text}
                   </Text>
+
+                  {item.offline && (
+                    <Text style={styles.offlineNote}>
+                      Réponse locale : le serveur IA est momentanément injoignable.
+                    </Text>
+                  )}
+
+                  {!isUser && item.sources && item.sources.length > 0 && (
+                    <View style={styles.sourcesContainer}>
+                      <Text style={styles.sourcesLabel}>Récits liés</Text>
+                      <View style={styles.sourcesRow}>
+                        {item.sources.map((source) => (
+                          <View key={`${item.id}-${source.id}`} style={styles.sourceChip}>
+                            <Text style={styles.sourceText}>{source.title}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
                 </View>
               </View>
             );
           }}
-          ListFooterComponent={isTyping ? (
-            <View style={styles.typingContainer}>
-              <Text style={styles.typingText}>Le Djeli délie son sac de paroles...</Text>
-            </View>
-          ) : null}
+          ListFooterComponent={
+            isTyping ? (
+              <View style={styles.typingContainer}>
+                <Text style={styles.typingText}>Le Djeli délie son sac de paroles...</Text>
+              </View>
+            ) : null
+          }
         />
       </Animated.View>
 
@@ -173,8 +205,14 @@ export const DjeliBotScreen = ({ route }: any) => {
             value={input}
             onChangeText={setInput}
             multiline
+            editable={!isTyping}
           />
-          <TouchableOpacity style={styles.sendBtn} onPress={() => send()}>
+          <TouchableOpacity
+            style={[styles.sendBtn, !canSend && styles.sendBtnDisabled]}
+            onPress={() => send()}
+            disabled={!canSend}
+            accessibilityLabel="Envoyer la question à DjeliBot"
+          >
             <MaterialCommunityIcons name="feather" size={24} color={colors.white} />
           </TouchableOpacity>
         </View>
@@ -221,9 +259,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gold,
     opacity: 0.2,
   },
-  bubble: { 
-    maxWidth: '85%', 
-    padding: 18, 
+  bubble: {
+    maxWidth: '85%',
+    padding: 18,
     borderRadius: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -231,31 +269,70 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 2,
   },
-  userBubble: { 
-    backgroundColor: colors.indigo, 
+  userBubble: {
+    backgroundColor: colors.indigo,
     borderTopLeftRadius: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
-  botBubble: { 
-    backgroundColor: colors.white, 
-    borderWidth: 1, 
+  botBubble: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
     borderColor: colors.border,
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
   },
-  text: { 
-    fontSize: 16, 
+  text: {
+    fontSize: 16,
     lineHeight: 26,
   },
-  userText: { 
+  userText: {
     fontFamily: 'Poppins_400Regular',
-    color: colors.white 
+    color: colors.white,
   },
-  botText: { 
+  botText: {
     fontFamily: 'PlayfairDisplay_400Regular',
-    color: colors.text 
+    color: colors.text,
+  },
+  offlineNote: {
+    marginTop: 12,
+    fontFamily: 'Poppins_400Regular_Italic',
+    fontSize: 11,
+    lineHeight: 16,
+    color: colors.textLight,
+  },
+  sourcesContainer: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  sourcesLabel: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 10,
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    color: colors.textLight,
+    marginBottom: 8,
+  },
+  sourcesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  sourceChip: {
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  sourceText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: colors.primary,
   },
   typingContainer: {
     paddingLeft: 44,
@@ -322,5 +399,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 10,
+  },
+  sendBtnDisabled: {
+    opacity: 0.4,
   },
 });
