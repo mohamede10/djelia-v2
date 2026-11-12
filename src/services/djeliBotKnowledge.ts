@@ -27,7 +27,7 @@ export type RetrievalOptions = {
 };
 
 const DEFAULT_LIMIT = 4;
-const EXCERPT_LENGTH = 380;
+const EXCERPT_LENGTH = 1400;
 
 /**
  * Mots trop génériques pour discriminer un récit. Ils sont ignorés par la
