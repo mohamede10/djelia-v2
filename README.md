@@ -125,10 +125,14 @@ npm run web
 
 ### 4.1 Firebase
 
-1. Créer un projet sur [console.firebase.google.com](https://console.firebase.google.com).
+1. Créer un projet sur [console.firebase.google.com](https://console.firebase.google.com)
+   (plan **Spark** suffit pour Firestore, Auth et le web).
 2. Activer **Authentication → Email/Password**, puis **Google** et **Facebook**
    si les connexions sociales sont souhaitées.
-3. Créer une base **Firestore** et un bucket **Storage**.
+3. Créer une base **Firestore** (mode production). Le bucket **Storage** n'est
+   nécessaire que pour les photos de profil : il exige le plan **Blaze** sur les
+   nouveaux projets. Sans Storage, l'application fonctionne (récits, favoris,
+   auth) mais la photo reste locale sur le web.
 4. Copier `.env.example` vers `.env` et renseigner les clés de la console
    (Paramètres du projet → Vos applications → Configuration SDK).
 
@@ -199,9 +203,34 @@ que les client IDs manquent.
 | `products` | artisanat (Phase 2) |
 
 Les **50 récits de démonstration** (12 contes, 13 fables, 13 proverbes et
-12 coutumes) sont injectés automatiquement dans `stories` au lancement. Le seed
-est incrémental : seuls les récits absents sont ajoutés, les documents existants
-ne sont jamais écrasés.
+12 coutumes) sont définis dans `src/data/stories.ts`.
+
+> ⚠️ Le seed embarqué dans l'application (`seedInitialStoriesToFirestore`) est
+> **bloqué par les règles** : `stories` n'accepte la création que pour un
+> administrateur. Tant qu'aucun admin n'existe, Firestore reste vide et
+> l'application affiche le catalogue local. Utiliser le script de seed ci-dessous.
+
+#### Alimenter Firestore (recommandé)
+
+1. Console Firebase → **Paramètres du projet** → **Comptes de service** →
+   **Générer une nouvelle clé privée**. Enregistrer le fichier **hors du dépôt**
+   (il est ignoré par Git : `serviceAccount*.json`).
+2. Lancer le seed :
+
+```powershell
+$env:GOOGLE_APPLICATION_CREDENTIALS="C:\chemin\serviceAccount.json"
+npm run seed
+```
+
+Le script est **incrémental** : seuls les récits absents sont ajoutés, les
+documents existants ne sont jamais écrasés. Pour visualiser sans écrire :
+
+```powershell
+npm run seed:dry
+```
+
+Le SDK Admin contourne les règles de sécurité : ne jamais committer la clé de
+service ni l'exposer dans le client.
 
 ### 4.5 Règles de sécurité
 
@@ -259,6 +288,8 @@ storage.rules                Règles Storage
 | `npm run ios` | Lance sur iOS |
 | `npm run web` | Lance la version web |
 | `npm run build` | Génère le build web statique dans `dist/` |
+| `npm run seed` | Injecte les 50 récits dans Firestore (SDK Admin) |
+| `npm run seed:dry` | Simule le seed et liste les récits manquants |
 | `npm run lint` | Analyse ESLint |
 | `npm test` | Exécute la suite Jest |
 | `npm run test:watch` | Tests en mode watch |

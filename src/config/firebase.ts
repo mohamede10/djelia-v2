@@ -17,7 +17,24 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || Constants.expoConfig?.extra?.firebaseAppId || "1:123456789012:web:abcdef123456789",
 };
 
-export const isFirebaseConfigured = !firebaseConfig.apiKey.includes("DemoKey");
+const DEMO_SENDER_ID = '123456789012';
+
+/**
+ * Le mode démo reste actif tant que la configuration réelle n'est pas complète.
+ * On vérifie les champs dont les valeurs de démonstration sont reconnaissables
+ * (`apiKey`, `messagingSenderId`, `appId`) : une clé API seule, sans le reste,
+ * produirait une application pointant vers un projet inexistant.
+ */
+const isPlaceholder = (value: string): boolean =>
+  !value ||
+  value.includes('DemoKey') ||
+  value === DEMO_SENDER_ID ||
+  value.startsWith(`1:${DEMO_SENDER_ID}`);
+
+export const isFirebaseConfigured =
+  !isPlaceholder(firebaseConfig.apiKey) &&
+  !isPlaceholder(firebaseConfig.messagingSenderId) &&
+  !isPlaceholder(firebaseConfig.appId);
 
 // Initialisation de l'application Firebase (Singleton)
 let app: FirebaseApp;

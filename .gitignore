@@ -36,6 +36,11 @@ yarn-error.*
 !.env.example
 .env*.local
 
+# Firebase Admin service account (ne jamais committer)
+serviceAccount*.json
+firebase-service-account*.json
+firebase-config.json
+
 # typescript
 *.tsbuildinfo
 
