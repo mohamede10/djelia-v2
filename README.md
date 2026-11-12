@@ -6,6 +6,25 @@ galerie d'artisanat.
 
 Ce dépôt contient le **MVP Phase 1** décrit dans le cahier des charges (`cahiercharges.md`).
 
+## État du déploiement
+
+| Élément | Valeur |
+| --- | --- |
+| Application web | <https://djelia-v2.vercel.app> |
+| Projet Firebase | `djelia-991aa` (plan Spark) |
+| Firestore | base `(default)`, emplacement `nam5`, mode production |
+| Récits en base | 50 (collection `stories`) |
+| Auth activée | E-mail / Mot de passe |
+| Domaine autorisé Auth | `djelia-v2.vercel.app` |
+
+Les variables `EXPO_PUBLIC_*` sont configurées dans Vercel (Production, Preview et
+Development). Comme Expo les intègre au bundle **au moment du build**, toute
+modification nécessite un redéploiement.
+
+> OAuth Google/Facebook, Storage (photos de profil en ligne), builds stores et
+> validations culturelles ne sont **pas** encore configurés : l'application
+> l'indique explicitement dans l'interface.
+
 ---
 
 ## 1. Fonctionnalités
