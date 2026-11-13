@@ -44,7 +44,7 @@ const ATTEMPT_TIMEOUT_MS = 12_000;
 const FIRESTORE_TIMEOUT_MS = 1_500;
 const WEB_SEARCH_TIMEOUT_MS = 4_000;
 const SOURCES_LIMIT = 3;
-const WEB_SOURCES_LIMIT = 2;
+const WEB_SOURCES_LIMIT = 3;
 const FIRESTORE_CACHE_MS = 5 * 60 * 1000;
 
 class UpstreamError extends Error {
@@ -430,14 +430,21 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     const lastUserMessage =
       [...parsed.messages].reverse().find((message) => message.role === 'user')?.content || '';
 
-    // Catalogue Djelia et encyclopédie externe sont interrogés en parallèle :
-    // la recherche web ne doit pas allonger sensiblement la réponse.
+    // Pré-contrôle sur le catalogue embarqué : inutile d'interroger le web si
+    // un récit correspond déjà clairement à la question.
+    const preliminary = retrieveStories(lastUserMessage, { limit: 1 });
+    const shouldSearchWeb = preliminary.length === 0 || preliminary[0].score < 8;
+
+    // Catalogue Djelia et recherche web sont interrogés en parallèle :
+    // la recherche externe ne doit pas allonger sensiblement la réponse.
     const [stories, webSources]: [Story[], ExternalSource[]] = await Promise.all([
       loadStories(),
-      searchWeb(lastUserMessage, {
-        limit: WEB_SOURCES_LIMIT,
-        timeoutMs: WEB_SEARCH_TIMEOUT_MS,
-      }),
+      shouldSearchWeb
+        ? searchWeb(lastUserMessage, {
+            limit: WEB_SOURCES_LIMIT,
+            timeoutMs: WEB_SEARCH_TIMEOUT_MS,
+          })
+        : Promise.resolve([]),
     ]);
 
     const matches: StoryMatch[] = retrieveStories(lastUserMessage, {

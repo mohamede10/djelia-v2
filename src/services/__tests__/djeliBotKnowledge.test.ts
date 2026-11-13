@@ -80,6 +80,6 @@ describe('djeliBotKnowledge', () => {
     expect(prompt).toContain('Sources externes');
     expect(prompt).toContain('Empire du Mali');
     expect(prompt).toContain('fr.wikipedia.org');
-    expect(prompt).toContain('selon Wikipédia');
+    expect(prompt).toContain('source externe');
   });
 });
