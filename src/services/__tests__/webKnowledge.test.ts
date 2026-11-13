@@ -1,9 +1,12 @@
 import {
   buildDuckDuckGoUrl,
+  buildWikipediaExtractsUrl,
+  buildWikipediaOpenSearchUrl,
   buildWikipediaSearchUrl,
   decodeDuckDuckGoUrl,
   decodeHtml,
   parseDuckDuckGoHtml,
+  parseWikipediaOpenSearchResponse,
   parseWikipediaResponse,
   searchWeb,
 } from '../webKnowledge';
@@ -60,6 +63,50 @@ describe('webKnowledge', () => {
     expect(url).toContain('generator=search');
     expect(url).toContain('masque+Nimba');
     expect(url).toContain('gsrlimit=2');
+  });
+
+  it('construit une URL opensearch et lit ses titres', () => {
+    const url = buildWikipediaOpenSearchUrl('capitale de la Guinée', { limit: 3 });
+
+    expect(url).toContain('action=opensearch');
+    expect(url).toContain('limit=3');
+    expect(url).toContain('capitale+de+la+Guin%C3%A9e');
+
+    expect(
+      parseWikipediaOpenSearchResponse([
+        'capitale de la Guinée',
+        ['Capitale de la Guinée', 'Capitale de la Guinée équatoriale'],
+        ['', ''],
+        [],
+      ])
+    ).toEqual(['Capitale de la Guinée', 'Capitale de la Guinée équatoriale']);
+    expect(parseWikipediaOpenSearchResponse(null)).toEqual([]);
+    expect(parseWikipediaOpenSearchResponse(['q', 'pas un tableau'])).toEqual([]);
+  });
+
+  it('construit une URL d’extraits pour plusieurs titres', () => {
+    const url = buildWikipediaExtractsUrl(['Alpha Condé', 'Guinée']);
+
+    expect(url).toContain('titles=Alpha+Cond%C3%A9%7CGuin%C3%A9e');
+    expect(url).toContain('prop=extracts');
+    expect(url).toContain('exintro=1');
+  });
+
+  it('respecte l’ordre fourni par opensearch', () => {
+    const sources = parseWikipediaResponse(
+      {
+        query: {
+          pages: {
+            '1': { title: 'Guinée', extract: 'Pays d’Afrique de l’Ouest.' },
+            '2': { title: 'Conakry', extract: 'Capitale de la Guinée.' },
+          },
+        },
+      },
+      'fr',
+      ['Conakry', 'Guinée']
+    );
+
+    expect(sources.map((source) => source.title)).toEqual(['Conakry', 'Guinée']);
   });
 
   it('trie les pages par pertinence et construit leurs URL', () => {

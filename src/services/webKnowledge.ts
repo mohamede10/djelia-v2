@@ -11,7 +11,7 @@
  * tests Jest.
  */
 
-import { tokenize, type ExternalSource } from './djeliBotKnowledge';
+import { normalize, tokenize, type ExternalSource } from './djeliBotKnowledge';
 
 const DEFAULT_LIMIT = 3;
 const DEFAULT_TIMEOUT_MS = 4_000;
@@ -139,15 +139,24 @@ export const buildWikipediaSearchUrl = (
 
 /**
  * Transforme la réponse de l'API Wikipédia en sources propres et ordonnées.
- * Les pages sans introduction exploitable sont ignorées.
+ * Les pages sans introduction exploitable sont ignorées. Quand `order` est
+ * fourni (résultats d'opensearch), il fixe l'ordre des sources.
  */
 export const parseWikipediaResponse = (
   payload: unknown,
-  lang = DEFAULT_LANG
+  lang = DEFAULT_LANG,
+  order: string[] = []
 ): ExternalSource[] => {
   const pages = (payload as { query?: { pages?: Record<string, unknown> } })?.query
     ?.pages;
   if (!pages || typeof pages !== 'object') return [];
+
+  const rank = (title: string): number => {
+    const index = order.findIndex(
+      (candidate) => normalize(candidate) === normalize(title)
+    );
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+  };
 
   return Object.values(pages)
     .filter((page): page is Record<string, any> => {
@@ -159,7 +168,13 @@ export const parseWikipediaResponse = (
         candidate.extract.trim().length > 0
       );
     })
-    .sort((a, b) => Number(a.index ?? 0) - Number(b.index ?? 0))
+    .sort((a, b) => {
+      if (order.length > 0) {
+        const delta = rank(a.title) - rank(b.title);
+        if (delta !== 0) return delta;
+      }
+      return Number(a.index ?? 0) - Number(b.index ?? 0);
+    })
     .map((page) => ({
       title: page.title.trim(),
       url: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(
@@ -167,6 +182,59 @@ export const parseWikipediaResponse = (
       )}`,
       excerpt: compact(page.extract).slice(0, MAX_EXCERPT_CHARS),
     }));
+};
+
+/** URL d'opensearch : renvoie les titres d'articles les plus proches. */
+export const buildWikipediaOpenSearchUrl = (
+  query: string,
+  options: WebSearchOptions = {}
+): string => {
+  const { limit = DEFAULT_LIMIT, lang = DEFAULT_LANG } = options;
+  const params = new URLSearchParams({
+    action: 'opensearch',
+    format: 'json',
+    search: query,
+    limit: String(limit),
+    namespace: '0',
+  });
+
+  return `https://${lang}.wikipedia.org/w/api.php?${params.toString()}`;
+};
+
+/**
+ * La réponse d'opensearch est un tableau : [requête, titres, descriptions, URL].
+ * On ne garde que les titres exploitables.
+ */
+export const parseWikipediaOpenSearchResponse = (payload: unknown): string[] => {
+  if (!Array.isArray(payload)) return [];
+  const titles = payload[1];
+  if (!Array.isArray(titles)) return [];
+
+  return titles
+    .filter((title): title is string => typeof title === 'string')
+    .map((title) => title.trim())
+    .filter((title) => title.length > 0);
+};
+
+/** URL de récupération des introductions pour une liste de titres. */
+export const buildWikipediaExtractsUrl = (
+  titles: string[],
+  options: WebSearchOptions = {}
+): string => {
+  const { lang = DEFAULT_LANG } = options;
+  const params = new URLSearchParams({
+    action: 'query',
+    format: 'json',
+    titles: titles.join('|'),
+    prop: 'extracts',
+    exintro: '1',
+    explaintext: '1',
+    exlimit: 'max',
+    redirects: '1',
+    origin: '*',
+  });
+
+  return `https://${lang}.wikipedia.org/w/api.php?${params.toString()}`;
 };
 
 const searchDuckDuckGo = async (
@@ -190,6 +258,19 @@ const searchDuckDuckGo = async (
   }
 };
 
+const fetchWikipediaJson = async (
+  url: string,
+  timeoutMs: number
+): Promise<unknown> => {
+  const response = await fetch(url, {
+    headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+
+  if (!response.ok) return null;
+  return response.json();
+};
+
 const searchWikipedia = async (
   query: string,
   options: WebSearchOptions
@@ -199,16 +280,41 @@ const searchWikipedia = async (
     timeoutMs = DEFAULT_TIMEOUT_MS,
     lang = DEFAULT_LANG,
   } = options;
+  const tokens = tokenize(query);
 
   try {
-    const response = await fetch(buildWikipediaSearchUrl(query, { limit, lang }), {
-      headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
-      signal: AbortSignal.timeout(timeoutMs),
-    });
+    // 1. opensearch retrouve l'article dont le titre correspond à la question
+    //    (« Capitale de la Guinée », « Alpha Condé ») : bien plus précis que la
+    //    recherche plein texte, qui renvoie des homonymes voisins.
+    const openPayload = await fetchWikipediaJson(
+      buildWikipediaOpenSearchUrl(query, { limit, lang }),
+      timeoutMs
+    );
+    const titles = parseWikipediaOpenSearchResponse(openPayload);
 
-    if (!response.ok) return [];
+    if (titles.length > 0) {
+      const relevant = titles.filter((title) => {
+        const normalized = normalize(title);
+        return tokens.every((token) => normalized.includes(token));
+      });
+      const wanted = relevant.length > 0 ? relevant.slice(0, 2) : titles.slice(0, 1);
 
-    const payload: unknown = await response.json();
+      const extractPayload = await fetchWikipediaJson(
+        buildWikipediaExtractsUrl(wanted, { lang }),
+        timeoutMs
+      );
+      const sources = parseWikipediaResponse(extractPayload, lang, wanted);
+      if (sources.length > 0) return sources.slice(0, limit);
+    }
+  } catch {
+    // On tente la recherche plein texte ci-dessous.
+  }
+
+  try {
+    const payload = await fetchWikipediaJson(
+      buildWikipediaSearchUrl(query, { limit, lang }),
+      timeoutMs
+    );
     return parseWikipediaResponse(payload, lang).slice(0, limit);
   } catch {
     return [];
