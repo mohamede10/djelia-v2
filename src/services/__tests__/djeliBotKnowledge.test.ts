@@ -65,5 +65,21 @@ describe('djeliBotKnowledge', () => {
 
     expect(prompt).toContain('cher ami');
     expect(prompt).toContain('Aucun récit du catalogue');
+    expect(prompt).toContain('Aucune source externe');
+  });
+
+  it('intègre les sources externes Wikipédia au prompt', () => {
+    const prompt = buildSystemPrompt('Aminata', [], [
+      {
+        title: 'Empire du Mali',
+        url: 'https://fr.wikipedia.org/wiki/Empire_du_Mali',
+        excerpt: 'Empire ouest-africain fondé au XIIIe siècle par Soundiata Keïta.',
+      },
+    ]);
+
+    expect(prompt).toContain('Sources externes');
+    expect(prompt).toContain('Empire du Mali');
+    expect(prompt).toContain('fr.wikipedia.org');
+    expect(prompt).toContain('selon Wikipédia');
   });
 });

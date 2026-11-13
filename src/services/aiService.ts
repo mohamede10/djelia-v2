@@ -22,6 +22,10 @@ export type DjeliBotSource = {
   id: string;
   title: string;
   category?: string;
+  /** `story` : récit du catalogue Djelia ; `web` : source externe (Wikipédia). */
+  kind?: 'story' | 'web';
+  /** URL publique, présente pour les sources externes. */
+  url?: string;
 };
 
 export type DjeliBotReply = {
@@ -48,7 +52,7 @@ export class AiServiceError extends Error {
 }
 
 const DEFAULT_API_URL = 'https://djelia-v2.vercel.app';
-const REQUEST_TIMEOUT_MS = 40_000;
+const REQUEST_TIMEOUT_MS = 45_000;
 
 /** Base de l'API : même origine sur le web, URL explicite sur mobile. */
 export const getAiApiBaseUrl = (): string => {
@@ -73,6 +77,8 @@ const parseSources = (value: unknown): DjeliBotSource[] => {
       id: entry.id,
       title: entry.title,
       category: typeof entry.category === 'string' ? entry.category : undefined,
+      kind: entry.kind === 'web' ? ('web' as const) : ('story' as const),
+      url: typeof entry.url === 'string' ? entry.url : undefined,
     }));
 };
 
@@ -89,6 +95,23 @@ export const askDjeliBot = async (
     throw new AiServiceError('Aucun message à envoyer.', 'invalid');
   }
 
+  try {
+    return await requestDjeliBot(messages, userName);
+  } catch (error) {
+    // Une coupure réseau immédiate (DNS, connexion interrompue) mérite une
+    // seconde chance ; un délai dépassé, non (le serveur a déjà réessayé).
+    if (error instanceof AiServiceError && error.code === 'network') {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      return requestDjeliBot(messages, userName);
+    }
+    throw error;
+  }
+};
+
+const requestDjeliBot = async (
+  messages: ChatMessage[],
+  userName?: string
+): Promise<DjeliBotReply> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 

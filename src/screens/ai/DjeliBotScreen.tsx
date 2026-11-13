@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Animated,
+  Linking,
 } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -94,8 +95,13 @@ export const DjeliBotScreen = ({ route }: any) => {
           sources: result.sources,
         },
       ]);
-    } catch {
+    } catch (error) {
       // Repli explicite : l'utilisateur doit savoir que l'IA n'a pas répondu.
+      // Le détail reste dans la console pour faciliter le diagnostic.
+      console.warn(
+        '[DjeliBot] repli local :',
+        error instanceof Error ? error.message : String(error)
+      );
       setMessages((previous) => [
         ...previous,
         {
@@ -138,6 +144,13 @@ export const DjeliBotScreen = ({ route }: any) => {
           onContentSizeChange={() => flatRef.current?.scrollToEnd({ animated: true })}
           renderItem={({ item }) => {
             const isUser = item.sender === 'user';
+            const storySources = (item.sources || []).filter(
+              (source) => source.kind !== 'web'
+            );
+            const webSources = (item.sources || []).filter(
+              (source) => source.kind === 'web'
+            );
+
             return (
               <View style={[styles.messageRow, isUser ? styles.rowUser : styles.rowBot]}>
                 {!isUser && (
@@ -157,14 +170,38 @@ export const DjeliBotScreen = ({ route }: any) => {
                     </Text>
                   )}
 
-                  {!isUser && item.sources && item.sources.length > 0 && (
+                  {!isUser && storySources.length > 0 && (
                     <View style={styles.sourcesContainer}>
                       <Text style={styles.sourcesLabel}>Récits liés</Text>
                       <View style={styles.sourcesRow}>
-                        {item.sources.map((source) => (
+                        {storySources.map((source) => (
                           <View key={`${item.id}-${source.id}`} style={styles.sourceChip}>
                             <Text style={styles.sourceText}>{source.title}</Text>
                           </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {!isUser && webSources.length > 0 && (
+                    <View style={styles.sourcesContainer}>
+                      <Text style={styles.sourcesLabel}>Sources externes</Text>
+                      <View style={styles.sourcesRow}>
+                        {webSources.map((source) => (
+                          <TouchableOpacity
+                            key={`${item.id}-${source.id}`}
+                            style={styles.webSourceChip}
+                            onPress={() => source.url && Linking.openURL(source.url)}
+                            disabled={!source.url}
+                            accessibilityLabel={`Ouvrir la source ${source.title}`}
+                          >
+                            <MaterialCommunityIcons
+                              name="open-in-new"
+                              size={12}
+                              color={colors.indigo}
+                            />
+                            <Text style={styles.webSourceText}>{source.title}</Text>
+                          </TouchableOpacity>
                         ))}
                       </View>
                     </View>
@@ -333,6 +370,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     fontSize: 11,
     color: colors.primary,
+  },
+  webSourceChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.indigo,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  webSourceText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: colors.indigo,
   },
   typingContainer: {
     paddingLeft: 44,

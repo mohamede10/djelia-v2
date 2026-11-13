@@ -10,8 +10,10 @@ import { INITIAL_STORIES, type Story } from '../src/data/stories';
 import {
   buildSystemPrompt,
   retrieveStories,
+  type ExternalSource,
   type StoryMatch,
 } from '../src/services/djeliBotKnowledge';
+import { searchWeb } from '../src/services/webKnowledge';
 
 type ChatRole = 'user' | 'assistant';
 type ChatMessage = { role: ChatRole; content: string };
@@ -36,12 +38,28 @@ const MAX_USER_NAME_CHARS = 80;
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
-const GEMINI_TIMEOUT_MS = 25_000;
+/** Modèles essayés si le modèle principal est saturé (429/503) ou trop lent. */
+const FALLBACK_MODELS = ['gemini-flash-lite-latest', 'gemini-3.1-flash-lite'];
+const ATTEMPT_TIMEOUT_MS = 12_000;
 const FIRESTORE_TIMEOUT_MS = 1_500;
+const WEB_SEARCH_TIMEOUT_MS = 4_000;
 const SOURCES_LIMIT = 3;
+const WEB_SOURCES_LIMIT = 2;
 const FIRESTORE_CACHE_MS = 5 * 60 * 1000;
 
-class UpstreamError extends Error {}
+class UpstreamError extends Error {
+  status?: number;
+
+  constructor(message: string, status?: number) {
+    super(message);
+    this.status = status;
+  }
+
+  /** 429 et 5xx sont transitoires : on peut réessayer un autre modèle. */
+  get retryable(): boolean {
+    return this.status === undefined || this.status === 429 || this.status >= 500;
+  }
+}
 class TimeoutError extends Error {
   constructor(message = 'timeout') {
     super(message);
@@ -240,10 +258,11 @@ const callGemini = async (
   apiKey: string,
   model: string,
   systemPrompt: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  timeoutMs: number
 ): Promise<string> => {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const url =
@@ -253,7 +272,7 @@ const callGemini = async (
     const generationConfig: Record<string, unknown> = {
       temperature: 0.75,
       topP: 0.95,
-      maxOutputTokens: 900,
+      maxOutputTokens: 800,
     };
 
     // Les modèles Flash « pensent » par défaut : on coupe la réflexion pour
@@ -277,7 +296,7 @@ const callGemini = async (
         }),
         signal: controller.signal,
       }),
-      GEMINI_TIMEOUT_MS,
+      timeoutMs,
       'gemini_timeout'
     );
 
@@ -286,7 +305,7 @@ const callGemini = async (
     if (!response.ok) {
       const message =
         payload?.error?.message || `Erreur du fournisseur IA (${response.status}).`;
-      throw new UpstreamError(message);
+      throw new UpstreamError(message, response.status);
     }
 
     const candidate = payload?.candidates?.[0];
@@ -307,6 +326,61 @@ const callGemini = async (
   } finally {
     clearTimeout(timer);
   }
+};
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Essaie le modèle principal puis des modèles lite de secours. Les erreurs
+ * transitoires (saturation 429/503, délai dépassé, réseau) déclenchent une
+ * nouvelle tentative ; une erreur définitive (400, contenu bloqué) est renvoyée
+ * telle quelle. Le budget total reste sous la limite Vercel de 60 s.
+ */
+const callGeminiWithFailover = async (
+  apiKey: string,
+  primaryModel: string,
+  systemPrompt: string,
+  messages: ChatMessage[]
+): Promise<{ reply: string; model: string }> => {
+  const models = [
+    primaryModel,
+    ...FALLBACK_MODELS.filter((model) => model !== primaryModel),
+  ];
+  let lastError: unknown;
+
+  for (const [index, model] of models.entries()) {
+    // Deux tentatives sur le modèle principal (saturation souvent brève),
+    // une seule sur chaque modèle de secours.
+    const attempts = index === 0 ? 2 : 1;
+
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        const reply = await callGemini(
+          apiKey,
+          model,
+          systemPrompt,
+          messages,
+          ATTEMPT_TIMEOUT_MS
+        );
+        return { reply, model };
+      } catch (error) {
+        lastError = error;
+
+        const retryable =
+          error instanceof TimeoutError ||
+          error instanceof TypeError ||
+          (error instanceof UpstreamError && error.retryable) ||
+          (error instanceof Error && error.name === 'AbortError');
+
+        if (!retryable) throw error;
+        if (attempt + 1 < attempts) await delay(400);
+      }
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new UpstreamError('Aucun modèle IA n’a pu répondre.');
 };
 
 // --- Handler -----------------------------------------------------------------
@@ -353,29 +427,48 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
   const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
 
   try {
-    const stories = await loadStories();
     const lastUserMessage =
       [...parsed.messages].reverse().find((message) => message.role === 'user')?.content || '';
+
+    // Catalogue Djelia et encyclopédie externe sont interrogés en parallèle :
+    // la recherche web ne doit pas allonger sensiblement la réponse.
+    const [stories, webSources]: [Story[], ExternalSource[]] = await Promise.all([
+      loadStories(),
+      searchWeb(lastUserMessage, {
+        limit: WEB_SOURCES_LIMIT,
+        timeoutMs: WEB_SEARCH_TIMEOUT_MS,
+      }),
+    ]);
+
     const matches: StoryMatch[] = retrieveStories(lastUserMessage, {
       limit: SOURCES_LIMIT,
       stories,
     });
 
-    const reply = await callGemini(
+    const { reply, model: usedModel } = await callGeminiWithFailover(
       apiKey,
       model,
-      buildSystemPrompt(parsed.userName, matches),
+      buildSystemPrompt(parsed.userName, matches, webSources),
       parsed.messages
     );
 
     res.status(200).json({
       reply,
-      model,
-      sources: matches.map((match) => ({
-        id: match.id,
-        title: match.title,
-        category: match.category,
-      })),
+      model: usedModel,
+      sources: [
+        ...matches.map((match) => ({
+          id: match.id,
+          title: match.title,
+          category: match.category,
+          kind: 'story' as const,
+        })),
+        ...webSources.map((source, index) => ({
+          id: `web-${index + 1}`,
+          title: source.title,
+          url: source.url,
+          kind: 'web' as const,
+        })),
+      ],
     });
   } catch (error) {
     const timedOut =

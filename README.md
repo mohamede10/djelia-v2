@@ -271,15 +271,26 @@ Les règles fournies :
 DjeliBot n'est pas un simple moteur de mots-clés : l'application appelle une
 fonction serverless (`api/chat.ts`) qui interroge **Google Gemini** en lui
 fournissant les récits du catalogue les plus pertinents (recherche plein texte
-sur les 50 récits Firestore, avec repli sur `src/data/stories.ts`).
+sur les 50 récits Firestore, avec repli sur `src/data/stories.ts`) et, si
+nécessaire, des sources externes Wikipédia.
 
 ```
 Navigateur / mobile
    └─ src/services/aiService.ts ──POST /api/chat──► api/chat.ts (Vercel)
-                                                      ├─ retrieveStories()  → catalogue
+                                                      ├─ retrieveStories() → catalogue
+                                                      ├─ searchWeb()       → Wikipédia
                                                       ├─ buildSystemPrompt()
                                                       └─ Gemini generateContent
 ```
+
+**Ouverture au web** : pour les questions que le catalogue ne couvre pas (un
+personnage historique, une ville, un événement), la fonction interroge l'API
+publique de Wikipédia en français (`src/services/webKnowledge.ts`) et transmet
+les extraits au modèle avec leur URL. Les réponses distinguent les **récits
+liés** (catalogue Djelia) des **sources externes** (Wikipédia, cliquables dans
+l'interface). Le modèle a l'interdiction d'inventer : s'il utilise une source
+externe, il doit l'annoncer et la citer. Aucune clé supplémentaire n'est
+nécessaire.
 
 **Sécurité** : la clé Gemini reste côté serveur. Elle ne doit **jamais** être
 préfixée par `EXPO_PUBLIC_` (Expo intègre ces variables au bundle web).
@@ -307,9 +318,12 @@ l'écran utilise `src/services/djeliBotLocal.ts` et affiche explicitement
 « Réponse locale : le serveur IA est momentanément injoignable. » Aucune réponse
 locale n'est présentée comme une réponse du modèle.
 
-**Latence** : le modèle par défaut (`gemini-3.5-flash-lite`) répond en quelques
-secondes. La fonction borne l'appel Gemini à 25 s et le client à 40 s : en cas de
-lenteur, l'utilisateur obtient le repli local au lieu d'un écran bloqué.
+**Latence et fiabilité** : le modèle par défaut (`gemini-3.5-flash-lite`) répond
+en quelques secondes. Chaque tentative est bornée à 12 s ; en cas de saturation
+(429/503) ou de délai dépassé, la fonction réessaie automatiquement puis bascule
+sur `gemini-flash-lite-latest` ou `gemini-3.1-flash-lite`. Le client attend
+jusqu'à 45 s. Si tous les modèles échouent, l'utilisateur obtient le repli local
+au lieu d'un écran bloqué.
 
 **Test local** de la fonction : `vercel dev` sert `/api/chat` en même temps que
 l'application web.
@@ -344,6 +358,7 @@ src/
     __tests__/               Tests unitaires Jest
     aiService.ts             Client de /api/chat (web même origine, mobile URL absolue)
     djeliBotKnowledge.ts     Retrieval pur dans les 50 récits + prompt système
+    webKnowledge.ts          Recherche Wikipédia et parsing des sources externes
     djeliBotLocal.ts         Réponses locales de secours (hors-ligne)
     authService.ts           Auth email, profils OAuth, messages d'erreur
     dataService.ts           Catalogue de 50 récits, recherche, seed, favoris
@@ -561,7 +576,8 @@ eas build --platform ios --profile production
   ces narrations ne remplacent pas la voix d'un griot.
 - Les parcours OAuth réels n'ont pas pu être testés sans projet Firebase et
   identifiants Google / Facebook. Le mode démo couvre uniquement le parcours UI.
-- DjeliBot utilise un moteur de réponses local en attendant un modèle IA.
+- DjeliBot s'appuie sur Gemini (offre gratuite) et sur Wikipédia : en cas de
+  quota épuisé, la réponse locale de secours est clairement signalée.
 - Les modules Livres et Marché restent des maquettes (catalogue fictif) : les PDF
   s'ouvrent dans le lecteur externe de l'appareil, le paiement n'est pas encore branché.
 - La photo de profil est choisie dans la galerie et recadrée en carré. Avec
