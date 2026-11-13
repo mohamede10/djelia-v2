@@ -16,7 +16,7 @@ Ce dépôt contient le **MVP Phase 1** décrit dans le cahier des charges (`cahi
 | Récits en base | 50 (collection `stories`) |
 | Auth activée | E-mail / Mot de passe |
 | Domaine autorisé Auth | `djelia-v2.vercel.app` |
-| DjeliBot | Gemini 2.5 Flash via `/api/chat` (clé `GEMINI_API_KEY` à définir dans Vercel) |
+| DjeliBot | Gemini 3.5 Flash via `/api/chat` (clé `GEMINI_API_KEY` à définir dans Vercel) |
 
 Les variables `EXPO_PUBLIC_*` sont configurées dans Vercel (Production, Preview et
 Development). Comme Expo les intègre au bundle **au moment du build**, toute
@@ -290,7 +290,7 @@ Development) :
 | Variable | Rôle |
 | --- | --- |
 | `GEMINI_API_KEY` | Clé Google AI Studio (**secrète, serveur uniquement**) |
-| `GEMINI_MODEL` | Modèle utilisé (défaut : `gemini-2.5-flash`) |
+| `GEMINI_MODEL` | Modèle utilisé (défaut : `gemini-3.5-flash`) |
 | `EXPO_PUBLIC_AI_API_URL` | URL absolue de l'API pour les builds natifs (le web utilise la même origine) |
 
 Créer la clé sur <https://aistudio.google.com/apikey>, puis :

@@ -35,6 +35,7 @@ const MAX_MESSAGE_CHARS = 2000;
 const MAX_USER_NAME_CHARS = 80;
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const DEFAULT_MODEL = 'gemini-3.5-flash';
 const GEMINI_TIMEOUT_MS = 20_000;
 const SOURCES_LIMIT = 4;
 const FIRESTORE_CACHE_MS = 5 * 60 * 1000;
@@ -195,6 +196,17 @@ const parseBody = (body: unknown): ParsedBody => {
 
 // --- Appel Gemini ------------------------------------------------------------
 
+/**
+ * `thinkingConfig` n'est accepté que par certains modèles Flash. Les variantes
+ * lite/pro/image/tts le rejettent avec une erreur 400 : on ne l'envoie qu'aux
+ * modèles connus pour le supporter.
+ */
+const supportsThinkingBudget = (model: string): boolean => {
+  if (!model.includes('flash')) return false;
+  if (/lite|pro|image|tts|omni|transcribe|nano/.test(model)) return false;
+  return model.startsWith('gemini-2.5') || model.startsWith('gemini-3');
+};
+
 const callGemini = async (
   apiKey: string,
   model: string,
@@ -215,9 +227,10 @@ const callGemini = async (
       maxOutputTokens: 900,
     };
 
-    // Gemini 2.5 Flash « pense » par défaut : on coupe la réflexion pour une
-    // réponse de chat rapide (non supporté par les modèles Pro).
-    if (model.startsWith('gemini-2.5') && !model.includes('pro')) {
+    // Les modèles Flash « pensent » par défaut : on coupe la réflexion pour
+    // une réponse de chat rapide. Non supporté par les variantes lite/pro,
+    // qui rejettent le paramètre.
+    if (supportsThinkingBudget(model)) {
       generationConfig.thinkingConfig = { thinkingBudget: 0 };
     }
 
@@ -304,7 +317,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     return;
   }
 
-  const model = process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
+  const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
 
   try {
     const stories = await loadStories();
