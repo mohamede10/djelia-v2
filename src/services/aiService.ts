@@ -48,7 +48,7 @@ export class AiServiceError extends Error {
 }
 
 const DEFAULT_API_URL = 'https://djelia-v2.vercel.app';
-const REQUEST_TIMEOUT_MS = 25_000;
+const REQUEST_TIMEOUT_MS = 40_000;
 
 /** Base de l'API : même origine sur le web, URL explicite sur mobile. */
 export const getAiApiBaseUrl = (): string => {

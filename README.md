@@ -16,7 +16,7 @@ Ce dépôt contient le **MVP Phase 1** décrit dans le cahier des charges (`cahi
 | Récits en base | 50 (collection `stories`) |
 | Auth activée | E-mail / Mot de passe |
 | Domaine autorisé Auth | `djelia-v2.vercel.app` |
-| DjeliBot | Gemini 3.5 Flash via `/api/chat` (clé `GEMINI_API_KEY` à définir dans Vercel) |
+| DjeliBot | Gemini 3.5 Flash Lite via `/api/chat` (clé `GEMINI_API_KEY` configurée dans Vercel) |
 
 Les variables `EXPO_PUBLIC_*` sont configurées dans Vercel (Production, Preview et
 Development). Comme Expo les intègre au bundle **au moment du build**, toute
@@ -290,7 +290,7 @@ Development) :
 | Variable | Rôle |
 | --- | --- |
 | `GEMINI_API_KEY` | Clé Google AI Studio (**secrète, serveur uniquement**) |
-| `GEMINI_MODEL` | Modèle utilisé (défaut : `gemini-3.5-flash`) |
+| `GEMINI_MODEL` | Modèle utilisé (défaut : `gemini-3.5-flash-lite`) |
 | `EXPO_PUBLIC_AI_API_URL` | URL absolue de l'API pour les builds natifs (le web utilise la même origine) |
 
 Créer la clé sur <https://aistudio.google.com/apikey>, puis :
@@ -306,6 +306,10 @@ vercel --prod
 l'écran utilise `src/services/djeliBotLocal.ts` et affiche explicitement
 « Réponse locale : le serveur IA est momentanément injoignable. » Aucune réponse
 locale n'est présentée comme une réponse du modèle.
+
+**Latence** : le modèle par défaut (`gemini-3.5-flash-lite`) répond en quelques
+secondes. La fonction borne l'appel Gemini à 25 s et le client à 40 s : en cas de
+lenteur, l'utilisateur obtient le repli local au lieu d'un écran bloqué.
 
 **Test local** de la fonction : `vercel dev` sert `/api/chat` en même temps que
 l'application web.
@@ -428,7 +432,7 @@ Le fichier `vercel.json` est déjà prêt :
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "functions": { "api/chat.ts": { "maxDuration": 30 } },
+  "functions": { "api/chat.ts": { "maxDuration": 60 } },
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```

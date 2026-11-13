@@ -26,8 +26,8 @@ export type RetrievalOptions = {
   stories?: Story[];
 };
 
-const DEFAULT_LIMIT = 4;
-const EXCERPT_LENGTH = 1400;
+const DEFAULT_LIMIT = 3;
+const EXCERPT_LENGTH = 900;
 
 /**
  * Mots trop génériques pour discriminer un récit. Ils sont ignorés par la

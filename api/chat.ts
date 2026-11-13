@@ -35,12 +35,39 @@ const MAX_MESSAGE_CHARS = 2000;
 const MAX_USER_NAME_CHARS = 80;
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
-const DEFAULT_MODEL = 'gemini-3.5-flash';
-const GEMINI_TIMEOUT_MS = 20_000;
-const SOURCES_LIMIT = 4;
+const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
+const GEMINI_TIMEOUT_MS = 25_000;
+const FIRESTORE_TIMEOUT_MS = 1_500;
+const SOURCES_LIMIT = 3;
 const FIRESTORE_CACHE_MS = 5 * 60 * 1000;
 
 class UpstreamError extends Error {}
+class TimeoutError extends Error {
+  constructor(message = 'timeout') {
+    super(message);
+    this.name = 'TimeoutError';
+  }
+}
+
+/**
+ * Garantit qu'une promesse réseau ne bloque pas la fonction au-delà du délai
+ * imparti. `AbortController` annule la requête ; ce course-là garantit surtout
+ * qu'une réponse est renvoyée avant que Vercel ne coupe l'exécution.
+ */
+const withTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new TimeoutError(label)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
 
 // --- Limitation de débit en mémoire (par instance de fonction) ---------------
 
@@ -125,9 +152,11 @@ const loadStories = async (): Promise<Story[]> => {
       `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}` +
       `/databases/(default)/documents/stories?pageSize=100&key=${encodeURIComponent(apiKey)}`;
 
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(4000),
-    });
+    const response = await withTimeout(
+      fetch(url, { signal: AbortSignal.timeout(FIRESTORE_TIMEOUT_MS) }),
+      FIRESTORE_TIMEOUT_MS,
+      'firestore_timeout'
+    );
     if (!response.ok) return INITIAL_STORIES;
 
     const payload: any = await response.json();
@@ -234,19 +263,23 @@ const callGemini = async (
       generationConfig.thinkingConfig = { thinkingBudget: 0 };
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: messages.map((message) => ({
-          role: message.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: message.content }],
-        })),
-        generationConfig,
+    const response = await withTimeout(
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: messages.map((message) => ({
+            role: message.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: message.content }],
+          })),
+          generationConfig,
+        }),
+        signal: controller.signal,
       }),
-      signal: controller.signal,
-    });
+      GEMINI_TIMEOUT_MS,
+      'gemini_timeout'
+    );
 
     const payload: any = await response.json().catch(() => null);
 
@@ -345,7 +378,9 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       })),
     });
   } catch (error) {
-    const timedOut = error instanceof Error && error.name === 'AbortError';
+    const timedOut =
+      error instanceof TimeoutError ||
+      (error instanceof Error && error.name === 'AbortError');
     const message = timedOut
       ? 'Le griot a été trop long à répondre. Réessaie dans un instant.'
       : error instanceof Error
