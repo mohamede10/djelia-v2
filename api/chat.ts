@@ -445,10 +445,17 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       stories,
     });
 
+    // Le catalogue reste la source principale : on n'ajoute les sources
+    // externes que lorsqu'aucun récit ne correspond vraiment (pas de terme
+    // trouvé dans un titre). Cela évite d'alourdir le prompt et de citer des
+    // pages Wikipédia inutiles pour une question déjà couverte.
+    const useWebSources = matches.length === 0 || matches[0].score < 8;
+    const externalSources = useWebSources ? webSources : [];
+
     const { reply, model: usedModel } = await callGeminiWithFailover(
       apiKey,
       model,
-      buildSystemPrompt(parsed.userName, matches, webSources),
+      buildSystemPrompt(parsed.userName, matches, externalSources),
       parsed.messages
     );
 
@@ -462,7 +469,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
           category: match.category,
           kind: 'story' as const,
         })),
-        ...webSources.map((source, index) => ({
+        ...externalSources.map((source, index) => ({
           id: `web-${index + 1}`,
           title: source.title,
           url: source.url,
