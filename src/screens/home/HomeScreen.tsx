@@ -193,7 +193,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                 contentFit="cover"
                 cachePolicy="memory-disk"
                 transition={250}
-                alt=""
+                accessibilityLabel=""
               />
               <View style={styles.heroOverlay} />
               <View style={styles.goldBorder} />
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: 'PlayfairDisplay_700Bold',
     fontSize: 12,
-    color: colors.textLight,
+    color: colors.textMid,
     letterSpacing: 2,
     paddingHorizontal: 25,
     marginBottom: 25,
