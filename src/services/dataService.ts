@@ -107,11 +107,32 @@ export type Catalogue = {
 const MEMORY_TTL_MS = 5 * 60 * 1000;
 let memoryCatalogue: { at: number; catalogue: Catalogue } | null = null;
 
+/**
+ * Sans plafond, une requête Firestore lancée hors connexion peut rester en
+ * attente longtemps : on bascule sur le cache après 8 s.
+ */
+const FIRESTORE_TIMEOUT_MS = 8_000;
+
+const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('firestore-timeout')), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
 const readFromFirestore = async (): Promise<Story[] | null> => {
   if (!isFirebaseConfigured) return null;
   try {
     const storiesCol = collection(db, 'stories');
-    const snapshot = await getDocs(storiesCol);
+    const snapshot = await withTimeout(getDocs(storiesCol), FIRESTORE_TIMEOUT_MS);
     if (snapshot.empty) return null;
 
     const stories: Story[] = [];
@@ -247,7 +268,7 @@ export const getStoryById = async (id: string): Promise<Story | undefined> => {
   if (isFirebaseConfigured) {
     try {
       const docRef = doc(db, 'stories', id);
-      const snap = await getDoc(docRef);
+      const snap = await withTimeout(getDoc(docRef), FIRESTORE_TIMEOUT_MS);
       if (snap.exists()) {
         const data = snap.data() as Omit<Story, 'id'>;
         const localStory = LOCAL_STORIES.find((story) => story.id === id);
