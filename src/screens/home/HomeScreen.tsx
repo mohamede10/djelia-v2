@@ -61,14 +61,14 @@ export const HomeScreen = ({ navigation }: Props) => {
     let cancelled = false;
 
     // Affichage instantané du catalogue déjà enregistré (offline-first), puis
-    // rafraîchissement depuis Firestore en arrière-plan.
+    // rafraîchissement depuis Firestore en arrière-plan. On ne signale pas
+    // « hors ligne » ici : les données sont peut-être simplement en cours de
+    // rafraîchissement. Seul `getCatalogue` sait si Firestore a échoué.
     (async () => {
       const cached = await getCachedStories();
       if (cancelled) return;
       if (cached.length > 0) {
         setStories(cached);
-        setCatalogueSource('cache');
-        setDegraded(true);
         setLoading(false);
       }
       fetchStories();
