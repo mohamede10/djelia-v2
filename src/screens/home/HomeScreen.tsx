@@ -13,6 +13,7 @@ import {
 import { colors } from '../../config/colors';
 import { BogolanPattern, KoraIcon, TamTamIcon, HutIcon, AIOrganicIcon } from '../../components/common/AfricanPattern';
 import { SkeletonHero, SkeletonCard } from '../../components/common/Skeleton';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 
 const { height } = Dimensions.get('window');
 
@@ -38,6 +39,8 @@ export const HomeScreen = ({ navigation }: Props) => {
   const [catalogueSource, setCatalogueSource] = useState<'firestore' | 'cache' | 'local'>('local');
   const [savedAt, setSavedAt] = useState<number | undefined>(undefined);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const isOnline = useOnlineStatus();
+  const wasOffline = useRef(false);
 
   const fetchStories = async (force = false) => {
     try {
@@ -82,6 +85,20 @@ export const HomeScreen = ({ navigation }: Props) => {
     fetchStories(true);
   };
 
+  // Retour en ligne : on relance la lecture Firestore, sans appel superflu au
+  // montage (le chargement initial s'en charge déjà).
+  useEffect(() => {
+    if (!isOnline) {
+      wasOffline.current = true;
+      return;
+    }
+    if (!wasOffline.current) return;
+    wasOffline.current = false;
+    setRefreshing(true);
+    invalidateCatalogue();
+    fetchStories(true);
+  }, [isOnline]);
+
   if (loading) {
     return (
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -103,6 +120,19 @@ export const HomeScreen = ({ navigation }: Props) => {
   const featuredStory = stories[featuredIndex];
   const otherStories = stories.filter((_, index) => index !== featuredIndex);
   const previewStories = otherStories.slice(0, ARCHIVE_PREVIEW_COUNT);
+
+  // La bannière s'affiche dès que l'appareil perd le réseau (signal immédiat,
+  // même si le catalogue en mémoire est encore frais) ou quand Firestore a
+  // échoué et que les données viennent du cache / du catalogue embarqué.
+  const offline = !isOnline || degraded;
+  const offlineMessage =
+    catalogueSource === 'cache'
+      ? `Hors ligne — catalogue enregistré${
+          savedAt ? ` le ${new Date(savedAt).toLocaleDateString('fr-FR')}` : ''
+        }`
+      : !isOnline
+      ? 'Hors ligne — récits issus de votre dernière connexion'
+      : 'Hors ligne — catalogue embarqué dans l’application';
 
   return (
     <View style={styles.container}>
@@ -135,16 +165,10 @@ export const HomeScreen = ({ navigation }: Props) => {
         </View>
       </View>
 
-      {degraded ? (
+      {offline ? (
         <View style={styles.offlineBanner} accessibilityLiveRegion="polite">
           <MaterialCommunityIcons name="cloud-off-outline" size={14} color={colors.indigo} />
-          <Text style={styles.offlineText}>
-            {catalogueSource === 'cache'
-              ? `Hors ligne — catalogue enregistré${
-                  savedAt ? ` le ${new Date(savedAt).toLocaleDateString('fr-FR')}` : ''
-                }`
-              : 'Hors ligne — catalogue embarqué dans l’application'}
-          </Text>
+          <Text style={styles.offlineText}>{offlineMessage}</Text>
         </View>
       ) : null}
 

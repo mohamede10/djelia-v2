@@ -152,7 +152,7 @@ Fodé ne garda pas l'eau pour sa famille. Il fit creuser un canal jusqu'au villa
 Un matin, les oiseaux quittèrent tous ensemble la vallée. Aïssatou courut prévenir : « Une tempête arrive par les montagnes. » On la prit pour une rêveuse. Le soir, le vent arracha les toits et emporta les greniers. Seuls les habitants qui avaient suivi son conseil s'étaient abrités dans la grotte.
 
 Quand le calme revint, les oiseaux rapportèrent des graines dans leurs becs. Le chef comprit que la plus petite voix peut porter le plus grand avertissement. Il nomma Aïssatou gardienne des saisons, et depuis, à Kindia, on apprend aux enfants à écouter avant de décider.`,
-    imageUrl: 'https://images.unsplash.com/photo-1504174604143-53116383966c?w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=800',
     likes: 93,
     views: 720,
   },
@@ -227,7 +227,7 @@ Quand le soleil revint, le caméléon demanda le secret du baobab. « Je ne suis
 La tortue, grisée, se moqua des autres animaux restés au sol. « Regardez ces rampants ! » cria-t-elle. Le vautour, blessé par cette ingratitude, ouvrit ses serres. La tortue tomba, tomba, et plongea dans une mare.
 
 Quand elle remonta, couverte de boue, une vieille tortue lui dit : « Tu voulais voir avec les yeux d'un autre. Maintenant, apprends à voir avec les tiens. » La carapace n'est pas une prison : c'est une maison qui voyage avec celui qui sait où il va.`,
-    imageUrl: 'https://images.unsplash.com/photo-1504174604143-53116383966c?w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1473580044384-7ba9967e16a0?w=800',
     likes: 71,
     views: 560,
   },
@@ -620,7 +620,7 @@ Une vieille chauve-souris suspendue à un kapokier lui dit : « Tu as choisi la 
 Mais le chacal ne pouvait s'empêcher de courir après les poules. Il oubliait sa carapace, se cognait aux murs et perdait ses moyens. Un jour, une poule le reconnut à son odeur. Tous les animaux accoururent.
 
 Le chacal s'enfuit, la carapace sur le dos, incapable de la retirer. Il comprit que l'on peut emprunter l'apparence d'un autre, jamais sa place. Depuis, au Fouta, on dit : « La carapace ne fait pas la tortue, pas plus que le pagne ne fait l'homme. »`,
-    imageUrl: 'https://images.unsplash.com/photo-1504174604143-53116383966c?w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800',
     likes: 72,
     views: 540,
   },
