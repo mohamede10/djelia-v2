@@ -70,7 +70,7 @@ export const OnboardingScreen = ({ navigation }: any) => {
 
   const finish = async () => {
     await markOnboardingAsSeen();
-    navigation.replace('Login');
+    navigation.replace('Welcome');
   };
 
   const handleNext = () => {

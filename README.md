@@ -104,7 +104,7 @@ modification nécessite un redéploiement.
 App.tsx
   └── AppProvider (session, favoris, actions OAuth)
         └── NavigationContainer
-              ├── AuthStack (splash, onboarding, login, signup, reset)
+              ├── AuthStack (splash, onboarding, accueil public, login, signup, reset)
               └── MainTabs
                     ├── Accueil ──────► StoryDetail ──► AudioPlayer / SpeechNarration
                     ├── Recherche ────► StoryCard (pagination 20)
@@ -342,7 +342,7 @@ src/
   config/                    Couleurs, thème Paper, Firebase, OAuth
   navigation/                Auth, tabs principaux, stacks par module
   screens/
-    auth/                    Splash, onboarding, login, signup, reset
+    auth/                    Splash, onboarding, accueil public, login, signup, reset
     home/                    Bibliothèque et détail d'un récit
     search/                  Recherche, filtres et pagination
     profile/                 Profil, édition, favoris
@@ -544,6 +544,7 @@ eas build --platform ios --profile production
 
 - [x] Setup Expo / TypeScript / thème Djelia
 - [x] Splash animé, onboarding 3 écrans, persistance de l'onboarding
+- [x] Page d'accueil publique (objectif de Djelia, bouton Connexion, création de compte)
 - [x] Authentification email / mot de passe + réinitialisation
 - [x] OAuth Google / Facebook (`expo-auth-session`, simulation locale en mode démo)
 - [x] Bibliothèque (contes, fables, proverbes, coutumes) + recherche et filtres

@@ -73,11 +73,12 @@ export const SplashScreen = ({ navigation }: any) => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
-    // Un utilisateur qui a déjà vu l'onboarding va directement au login.
+    // Un utilisateur qui a déjà vu l'onboarding retrouve directement la page
+    // d'accueil publique, d'où il peut se connecter.
     hasSeenOnboarding().then((seen) => {
       if (cancelled) return;
       timer = setTimeout(
-        () => navigation.replace(seen ? 'Login' : 'Onboarding'),
+        () => navigation.replace(seen ? 'Welcome' : 'Onboarding'),
         seen ? 2600 : 4200
       );
     });
