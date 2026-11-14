@@ -218,6 +218,7 @@ Site : https://djelia-v2.vercel.app (branche `main`, déploiement Vercel).
 | Navigation vers la fiche depuis le récit du jour | ✅ |
 | Bouton favori d'une carte (hors du bouton carte) | ✅ bascule « Ajouter » → « Retirer » |
 | Lighthouse 13.4.1 (axe-core 4.13.0), accueil connecté | ✅ **accessibilité 1,0 · bonnes pratiques 1,0 · SEO 1,0**, aucune règle en échec |
+| Lighthouse page d'accueil publique (déconnecté) | ✅ **1,0 · 1,0 · 1,0**, aucune règle en échec |
 | `robots.txt` et `meta description` servis en production | ✅ HTTP 200, `lang="fr"` |
 
 Le repli sur le cache lorsque Firestore échoue est couvert par les tests
