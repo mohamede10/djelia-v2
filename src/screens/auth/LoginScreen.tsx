@@ -13,6 +13,7 @@ import { colors } from '../../config/colors';
 import { useAppContext } from '../../store/AppProvider';
 import { getFirebaseAuthErrorMessage } from '../../services/authService';
 import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons';
+import { BackToHomeLink } from '../../components/auth/BackToHomeLink';
 
 export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,10 @@ export const LoginScreen = ({ navigation }: any) => {
   const [emailError, setEmailError] = useState('');
   const [globalError, setGlobalError] = useState('');
   const { login, isLoading } = useAppContext();
+
+  // Retour à la page d'accueil publique (elle se trouve sous cet écran dans la
+  // pile de navigation, donc `navigate` y revient sans en empiler une nouvelle).
+  const goHome = () => navigation.navigate('Welcome');
 
   const handleLogin = async () => {
     setEmailError('');
@@ -53,6 +58,8 @@ export const LoginScreen = ({ navigation }: any) => {
     >
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <BogolanPattern opacity={0.04} />
+
+        <BackToHomeLink onPress={goHome} />
 
         <View style={styles.header}>
           <DjeliaLogo size={70} />

@@ -13,6 +13,7 @@ import { BogolanPattern, DjeliaLogo } from '../../components/common/AfricanPatte
 import { useAppContext } from '../../store/AppProvider';
 import { getFirebaseAuthErrorMessage, validatePassword } from '../../services/authService';
 import { SocialAuthButtons } from '../../components/auth/SocialAuthButtons';
+import { BackToHomeLink } from '../../components/auth/BackToHomeLink';
 
 export const SignupScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -24,6 +25,9 @@ export const SignupScreen = ({ navigation }: any) => {
   const [passError, setPassError] = useState('');
   const [globalError, setGlobalError] = useState('');
   const { signup, isLoading } = useAppContext();
+
+  // Retour à la page d'accueil publique, quel que soit l'écran d'où l'on vient.
+  const goHome = () => navigation.navigate('Welcome');
 
   const handleSignup = async () => {
     setNameError('');
@@ -81,6 +85,8 @@ export const SignupScreen = ({ navigation }: any) => {
     >
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <BogolanPattern opacity={0.04} />
+
+        <BackToHomeLink onPress={goHome} />
 
         <View style={styles.header}>
           <DjeliaLogo size={60} />
