@@ -185,7 +185,7 @@ export const HomeScreen = ({ navigation }: Props) => {
               onPress={() => navigation.navigate('StoryDetail', { id: featuredStory.id })}
               style={styles.heroCard}
               accessibilityRole="button"
-              accessibilityLabel={`Découvrir ${featuredStory.title}, récit du jour`}
+              accessibilityLabel={`DÉCOUVRIR LE RÉCIT — ${featuredStory.title}, ${featuredStory.region}`}
             >
               <Image
                 source={{ uri: featuredStory.imageUrl }}
@@ -193,6 +193,7 @@ export const HomeScreen = ({ navigation }: Props) => {
                 contentFit="cover"
                 cachePolicy="memory-disk"
                 transition={250}
+                alt=""
               />
               <View style={styles.heroOverlay} />
               <View style={styles.goldBorder} />
@@ -431,8 +432,8 @@ const styles = StyleSheet.create({
   },
   quoteAuthor: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 9,
-    color: colors.gold,
+    fontSize: 10,
+    color: colors.primary,
     marginTop: 20,
     letterSpacing: 3,
   },

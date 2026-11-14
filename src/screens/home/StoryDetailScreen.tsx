@@ -67,6 +67,7 @@ export const StoryDetailScreen = ({ route, navigation }: Props) => {
             transition={250}
             onError={() => setCoverFailed(true)}
             accessibilityIgnoresInvertColors
+            alt=""
           />
         )}
         

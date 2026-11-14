@@ -51,6 +51,7 @@ export const StoryCard = React.memo(function StoryCard({ story, onPress }: Props
             transition={200}
             onError={() => setImageFailed(true)}
             accessibilityIgnoresInvertColors
+            alt=""
           />
         )}
         <TouchableOpacity 

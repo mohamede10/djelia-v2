@@ -55,7 +55,9 @@ modification nécessite un redéploiement.
 - **Mode hors-ligne** : le catalogue reçu de Firestore est enregistré sur
   l'appareil (`AsyncStorage`), réaffiché instantanément au lancement puis
   rafraîchi en arrière-plan ; une bannière « Hors ligne » signale clairement
-  que les données proviennent du cache local
+  que les données proviennent du cache local. Sur le web, la perte de réseau
+  est détectée immédiatement (`navigator.onLine`) et le catalogue est relu
+  automatiquement au retour de la connexion.
 - Cache mémoire de 5 minutes pour le catalogue : la recherche ne relit pas les
   50 documents Firestore à chaque frappe
 

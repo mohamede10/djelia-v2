@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# Application monopage : toutes les routes servent la même page.

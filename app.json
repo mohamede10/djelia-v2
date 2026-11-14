@@ -3,6 +3,7 @@
     "name": "Djelia",
     "slug": "djelia",
     "version": "1.0.0",
+    "description": "Djelia, la mémoire africaine à l'ère du numérique : contes, fables, proverbes et coutumes de Guinée, avec un assistant culturel DjeliBot.",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "djelia",
@@ -26,7 +27,10 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "lang": "fr",
+      "description": "Djelia, la mémoire africaine à l'ère du numérique : contes, fables, proverbes et coutumes de Guinée, avec l'assistant culturel DjeliBot.",
+      "themeColor": "#006838"
     },
     "plugins": [
       [

@@ -49,7 +49,7 @@ const tabStyles = StyleSheet.create({
   label: {
     fontFamily: 'Poppins_400Regular',
     fontSize: 10,
-    color: colors.textLight,
+    color: colors.textMid,
     marginTop: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.5,

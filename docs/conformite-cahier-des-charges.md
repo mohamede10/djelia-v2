@@ -94,7 +94,7 @@ prévus en phases 2 et 3, sont déjà livrés.
 | Accessibilité (libellés, rôles) | ✅ | Cartes, favoris, filtres, onglets, en-têtes |
 | Contraste WCAG AA | 🟡 | Petits textes or remplacés par le vert profond ; audit complet non réalisé |
 | Lecteurs d'écran | 🟡 | Rôles et libellés posés, test VoiceOver / TalkBack non réalisé |
-| Offline-first | ✅ | Cache `AsyncStorage` du catalogue + bannière hors ligne + cache des favoris |
+| Offline-first | ✅ | Cache `AsyncStorage` du catalogue + bannière hors ligne + cache des favoris ; détection `navigator.onLine` sur le web |
 
 ### 2.5 Design (§ 6)
 
@@ -134,6 +134,9 @@ prévus en phases 2 et 3, sont déjà livrés.
      `invalidateCatalogue`, cache mémoire de 5 minutes.
    - `src/screens/home/HomeScreen.tsx` : affichage instantané du cache, puis
      rafraîchissement réseau ; bannière « Hors ligne » avec la date du cache.
+   - `src/hooks/useOnlineStatus.ts` : détection immédiate de la perte de réseau
+     (`navigator.onLine` + évènements `online` / `offline`) et rechargement
+     automatique du catalogue au retour de la connexion.
    - `getStoryById` consulte désormais le cache avant le catalogue embarqué.
 
 2. **Règles de sécurité renforcées** (cahier § 5.3)
@@ -165,8 +168,9 @@ prévus en phases 2 et 3, sont déjà livrés.
 |---|---|---|
 | Mesurer le chargement (3G, Chrome DevTools) et consigner les chiffres | 1 h | Prouve le critère < 3 s |
 | Audit VoiceOver / TalkBack sur 3 écrans | 0,5 j | Conformité accessibilité |
-| Rédiger le protocole de test utilisateur (10 personnes) | 0,5 j | Prépare la recette |
+| ~~Rédiger le protocole de test utilisateur~~ ✅ `docs/protocole-tests-utilisateurs.md` | fait | Prépare la recette |
 | Filtrer les sources web de DjeliBot sur celles réellement citées | 0,5 j | Qualité des réponses |
+| Exécuter les tests utilisateurs (protocole prêt) | 2 j | Recette et note ≥ 4/5 |
 
 ### 4.2 Bloqué par un prérequis externe
 
@@ -190,7 +194,28 @@ prévus en phases 2 et 3, sont déjà livrés.
 
 ---
 
-## 5. Mise en production des règles et index
+## 5. Vérifications réalisées en production
+
+Site : https://djelia-v2.vercel.app (branche `main`, déploiement Vercel).
+
+| Vérification | Résultat |
+|---|---|
+| Catalogue de 50 récits reçu de Firestore | ✅ |
+| Cache `localStorage['djelia_catalogue_cache_v1']` | ✅ 50 récits, `audioUrl` retiré (non sérialisable) |
+| Passage hors ligne (`offline` sur `navigator.onLine`) | ✅ bannière « Hors ligne — récits issus de votre dernière connexion » immédiate |
+| Retour en ligne | ✅ bannière retirée, catalogue relu depuis Firestore |
+| Affichage du catalogue en cache au démarrage | ✅ puis rafraîchissement, sans bannière transitoire trompeuse |
+| Images du catalogue | ✅ 14 visuels Unsplash testés en HTTP 200 (3 références 404 remplacées) |
+| DjeliBot, recherche web (Wikipédia) | ✅ sources affichées sous la réponse |
+| Parcours accueil ↔ connexion ↔ inscription | ✅ |
+
+Le repli sur le cache lorsque Firestore échoue est couvert par les tests
+unitaires (`dataService.offline.test.ts`) : source `cache`, `degraded: true`,
+date d'enregistrement conservée.
+
+---
+
+## 6. Mise en production des règles et index
 
 ```bash
 firebase login
@@ -203,7 +228,7 @@ l'inscription, la connexion et l'ajout aux favoris fonctionnent toujours.
 
 ---
 
-## 6. Conclusion
+## 7. Conclusion
 
 Le socle MVP du cahier des charges est livré et vérifié. Les points ouverts
 relèvent de la production (contenus audio, identifiants OAuth, builds, recette
