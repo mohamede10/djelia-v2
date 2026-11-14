@@ -152,6 +152,13 @@ prévus en phases 2 et 3, sont déjà livrés.
    - État `selected` annoncé sur le bouton favori.
    - Titres d'écran en `accessibilityRole="header"`.
    - Petits textes or sur fond clair passés au vert profond.
+   - `StoryCard` restructurée : le bouton favori n'est plus imbriqué dans le
+     bouton carte, les métadonnées passent en `colors.textMid` (contraste
+     ≥ 4,5:1) et le nom accessible reprend le texte visible dans le même ordre.
+   - Images décoratives en `accessibilityLabel=""` (expo-image ne transmet que
+     cette propriété à l'attribut `alt` du `<img>` sur le web).
+   - Score Lighthouse production : **accessibilité 1,0 · bonnes pratiques 1,0 ·
+     SEO 1,0** (voir § 5).
 
 5. **Tests**
    - `dataService.offline.test.ts` : bascule sur le cache, réassociation de
@@ -167,7 +174,7 @@ prévus en phases 2 et 3, sont déjà livrés.
 | Action | Effort | Impact |
 |---|---|---|
 | Mesurer le chargement (3G, Chrome DevTools) et consigner les chiffres | 1 h | Prouve le critère < 3 s |
-| Audit VoiceOver / TalkBack sur 3 écrans | 0,5 j | Conformité accessibilité |
+| Audit VoiceOver / TalkBack sur 3 écrans (Lighthouse automatisé ✅ 1,0) | 0,5 j | Conformité accessibilité |
 | ~~Rédiger le protocole de test utilisateur~~ ✅ `docs/protocole-tests-utilisateurs.md` | fait | Prépare la recette |
 | Filtrer les sources web de DjeliBot sur celles réellement citées | 0,5 j | Qualité des réponses |
 | Exécuter les tests utilisateurs (protocole prêt) | 2 j | Recette et note ≥ 4/5 |
@@ -208,6 +215,10 @@ Site : https://djelia-v2.vercel.app (branche `main`, déploiement Vercel).
 | Images du catalogue | ✅ 14 visuels Unsplash testés en HTTP 200 (3 références 404 remplacées) |
 | DjeliBot, recherche web (Wikipédia) | ✅ sources affichées sous la réponse |
 | Parcours accueil ↔ connexion ↔ inscription | ✅ |
+| Navigation vers la fiche depuis le récit du jour | ✅ |
+| Bouton favori d'une carte (hors du bouton carte) | ✅ bascule « Ajouter » → « Retirer » |
+| Lighthouse 13.4.1 (axe-core 4.13.0), accueil connecté | ✅ **accessibilité 1,0 · bonnes pratiques 1,0 · SEO 1,0**, aucune règle en échec |
+| `robots.txt` et `meta description` servis en production | ✅ HTTP 200, `lang="fr"` |
 
 Le repli sur le cache lorsque Firestore échoue est couvert par les tests
 unitaires (`dataService.offline.test.ts`) : source `cache`, `degraded: true`,
