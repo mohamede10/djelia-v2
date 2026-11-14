@@ -81,7 +81,7 @@ prévus en phases 2 et 3, sont déjà livrés.
 
 | Exigence | État | Preuve / remarque |
 |---|---|---|
-| Chargement initial < 3 s en 3G | ❓ | Non mesuré. Le catalogue en cache s'affiche avant le réseau (perception améliorée) |
+| Chargement initial < 3 s en 3G | ⚠️ | Mesuré en production : HTML 129 ms, bundle JS 2,9 Mo (≈ 0,75 Mo compressé) → premier chargement > 3 s en 3G. Le catalogue en cache s'affiche immédiatement aux visites suivantes |
 | Réponse API < 500 ms (95 %) | 🟡 | Recherche locale après cache mémoire ; DjeliBot dépend de Gemini (12 s max par tentative) |
 | Démarrage audio < 2 s | ❓ | Non mesuré |
 | Scroll 60 FPS | 🟡 | `FlatList` optimisée (`initialNumToRender`, `windowSize`, `removeClippedSubviews`) |
@@ -91,9 +91,9 @@ prévus en phases 2 et 3, sont déjà livrés.
 | Règles Firestore | ✅ | Lecture publique des récits, écriture admin, favoris par propriétaire |
 | Lecture des profils restreinte | ✅ | Propriétaire ou admin uniquement |
 | Validation serveur des écritures | 🟡 | Règles Firestore durcies (champs, intégrité) ; pas de Cloud Functions |
-| Accessibilité (libellés, rôles) | ✅ | Cartes, favoris, filtres, onglets, en-têtes |
-| Contraste WCAG AA | 🟡 | Petits textes or remplacés par le vert profond ; audit complet non réalisé |
-| Lecteurs d'écran | 🟡 | Rôles et libellés posés, test VoiceOver / TalkBack non réalisé |
+| Accessibilité (libellés, rôles) | ✅ | Cartes, favoris, filtres, onglets, en-têtes ; audit Lighthouse automatisé à 1,0 |
+| Contraste WCAG AA | ✅ | Audit Lighthouse (axe-core 4.13.0) : aucune erreur de contraste sur l'accueil |
+| Lecteurs d'écran | 🟡 | Rôles et libellés posés, test VoiceOver / TalkBack manuel non réalisé |
 | Offline-first | ✅ | Cache `AsyncStorage` du catalogue + bannière hors ligne + cache des favoris ; détection `navigator.onLine` sur le web |
 
 ### 2.5 Design (§ 6)
@@ -173,7 +173,7 @@ prévus en phases 2 et 3, sont déjà livrés.
 
 | Action | Effort | Impact |
 |---|---|---|
-| Mesurer le chargement (3G, Chrome DevTools) et consigner les chiffres | 1 h | Prouve le critère < 3 s |
+| Mesurer le chargement (3G, Chrome DevTools) et consigner les chiffres | ~~fait~~ ✅ HTML 129 ms, bundle 2,9 Mo → premier chargement > 3 s en 3G (voir § 2.4) | Prouve le critère < 3 s (non atteint au premier chargement) |
 | Audit VoiceOver / TalkBack sur 3 écrans (Lighthouse automatisé ✅ 1,0) | 0,5 j | Conformité accessibilité |
 | ~~Rédiger le protocole de test utilisateur~~ ✅ `docs/protocole-tests-utilisateurs.md` | fait | Prépare la recette |
 | Filtrer les sources web de DjeliBot sur celles réellement citées | 0,5 j | Qualité des réponses |
