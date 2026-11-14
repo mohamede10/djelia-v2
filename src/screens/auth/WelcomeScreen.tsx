@@ -109,7 +109,7 @@ export const WelcomeScreen = ({ navigation }: any) => {
               style={styles.loginButton}
               onPress={goToLogin}
               accessibilityRole="button"
-              accessibilityLabel="Se connecter à Djelia"
+              accessibilityLabel="CONNEXION — se connecter à Djelia"
             >
               <MaterialCommunityIcons
                 name="login"
