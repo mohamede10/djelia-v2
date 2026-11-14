@@ -216,6 +216,25 @@ export const parseWikipediaOpenSearchResponse = (payload: unknown): string[] => 
     .filter((title) => title.length > 0);
 };
 
+/**
+ * Choisit le titre Wikipédia le plus probable pour la question. On privilégie
+ * un titre qui reprend tous les mots-clés, puis le plus court : « Capitale de
+ * la Guinée » plutôt que « Capitale de la Guinée équatoriale ».
+ */
+export const selectWikipediaTitles = (titles: string[], query: string): string[] => {
+  if (titles.length === 0) return [];
+  const tokens = tokenize(query);
+
+  const relevant = titles.filter((title) => {
+    const normalized = normalize(title);
+    return tokens.length > 0 && tokens.every((token) => normalized.includes(token));
+  });
+
+  if (relevant.length === 0) return titles.slice(0, 1);
+
+  return [relevant.sort((a, b) => normalize(a).length - normalize(b).length)[0]];
+};
+
 /** URL de récupération des introductions pour une liste de titres. */
 export const buildWikipediaExtractsUrl = (
   titles: string[],
@@ -280,7 +299,6 @@ const searchWikipedia = async (
     timeoutMs = DEFAULT_TIMEOUT_MS,
     lang = DEFAULT_LANG,
   } = options;
-  const tokens = tokenize(query);
 
   try {
     // 1. opensearch retrouve l'article dont le titre correspond à la question
@@ -293,11 +311,7 @@ const searchWikipedia = async (
     const titles = parseWikipediaOpenSearchResponse(openPayload);
 
     if (titles.length > 0) {
-      const relevant = titles.filter((title) => {
-        const normalized = normalize(title);
-        return tokens.every((token) => normalized.includes(token));
-      });
-      const wanted = relevant.length > 0 ? relevant.slice(0, 2) : titles.slice(0, 1);
+      const wanted = selectWikipediaTitles(titles, query);
 
       const extractPayload = await fetchWikipediaJson(
         buildWikipediaExtractsUrl(wanted, { lang }),

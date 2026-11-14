@@ -9,6 +9,7 @@ import {
   parseWikipediaOpenSearchResponse,
   parseWikipediaResponse,
   searchWeb,
+  selectWikipediaTitles,
 } from '../webKnowledge';
 
 describe('webKnowledge', () => {
@@ -90,6 +91,24 @@ describe('webKnowledge', () => {
     expect(url).toContain('titles=Alpha+Cond%C3%A9%7CGuin%C3%A9e');
     expect(url).toContain('prop=extracts');
     expect(url).toContain('exintro=1');
+  });
+
+  it('choisit le titre le plus général quand plusieurs sont pertinents', () => {
+    expect(
+      selectWikipediaTitles(
+        [
+          'Capitale de la Guinée équatoriale',
+          'Capitale de la Guinée',
+          'Capitale de la Guinée-Bissau',
+        ],
+        'capitale de la guinee'
+      )
+    ).toEqual(['Capitale de la Guinée']);
+
+    expect(
+      selectWikipediaTitles(['Soundiata Keïta', 'Empire du Mali'], 'roi soundiata')
+    ).toEqual(['Soundiata Keïta']);
+    expect(selectWikipediaTitles([], 'capitale')).toEqual([]);
   });
 
   it('respecte l’ordre fourni par opensearch', () => {
