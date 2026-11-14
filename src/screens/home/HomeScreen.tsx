@@ -185,7 +185,7 @@ export const HomeScreen = ({ navigation }: Props) => {
               onPress={() => navigation.navigate('StoryDetail', { id: featuredStory.id })}
               style={styles.heroCard}
               accessibilityRole="button"
-              accessibilityLabel={`DÉCOUVRIR LE RÉCIT — ${featuredStory.title}, ${featuredStory.region}`}
+              accessibilityLabel={`${featuredStory.region}, ${featuredStory.title}, DÉCOUVRIR LE RÉCIT`}
             >
               <Image
                 source={{ uri: featuredStory.imageUrl }}
