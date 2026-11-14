@@ -4,7 +4,12 @@ import { Image } from 'expo-image';
 import { Text } from 'react-native-paper';import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StoryCard } from '../../components/common/StoryCard';
-import { getStories, Story } from '../../services/dataService';
+import {
+  getCachedStories,
+  getCatalogue,
+  invalidateCatalogue,
+  Story,
+} from '../../services/dataService';
 import { colors } from '../../config/colors';
 import { BogolanPattern, KoraIcon, TamTamIcon, HutIcon, AIOrganicIcon } from '../../components/common/AfricanPattern';
 import { SkeletonHero, SkeletonCard } from '../../components/common/Skeleton';
@@ -29,12 +34,18 @@ export const HomeScreen = ({ navigation }: Props) => {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [degraded, setDegraded] = useState(false);
+  const [catalogueSource, setCatalogueSource] = useState<'firestore' | 'cache' | 'local'>('local');
+  const [savedAt, setSavedAt] = useState<number | undefined>(undefined);
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const fetchStories = async () => {
+  const fetchStories = async (force = false) => {
     try {
-      const data = await getStories();
-      setStories(data);
+      const result = await getCatalogue({ force });
+      setStories(result.stories);
+      setCatalogueSource(result.source);
+      setDegraded(result.degraded);
+      setSavedAt(result.savedAt);
     } catch (error) {
       console.error(error);
     } finally {
@@ -44,12 +55,31 @@ export const HomeScreen = ({ navigation }: Props) => {
   };
 
   useEffect(() => {
-    fetchStories();
+    let cancelled = false;
+
+    // Affichage instantané du catalogue déjà enregistré (offline-first), puis
+    // rafraîchissement depuis Firestore en arrière-plan.
+    (async () => {
+      const cached = await getCachedStories();
+      if (cancelled) return;
+      if (cached.length > 0) {
+        setStories(cached);
+        setCatalogueSource('cache');
+        setDegraded(true);
+        setLoading(false);
+      }
+      fetchStories();
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchStories();
+    invalidateCatalogue();
+    fetchStories(true);
   };
 
   if (loading) {
@@ -94,11 +124,29 @@ export const HomeScreen = ({ navigation }: Props) => {
           <View style={styles.headerLine} />
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Search')}>
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => navigation.navigate('Search')}
+            accessibilityRole="button"
+            accessibilityLabel="Rechercher un récit"
+          >
             <MaterialCommunityIcons name="magnify" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
+
+      {degraded ? (
+        <View style={styles.offlineBanner} accessibilityLiveRegion="polite">
+          <MaterialCommunityIcons name="cloud-off-outline" size={14} color={colors.indigo} />
+          <Text style={styles.offlineText}>
+            {catalogueSource === 'cache'
+              ? `Hors ligne — catalogue enregistré${
+                  savedAt ? ` le ${new Date(savedAt).toLocaleDateString('fr-FR')}` : ''
+                }`
+              : 'Hors ligne — catalogue embarqué dans l’application'}
+          </Text>
+        </View>
+      ) : null}
 
       <Animated.ScrollView 
         showsVerticalScrollIndicator={false}
@@ -237,6 +285,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 22,
     marginLeft: 10,
+  },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 25,
+    marginBottom: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: colors.surfaceWarm,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.indigo,
+    borderRadius: 4,
+  },
+  offlineText: {
+    flex: 1,
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: colors.indigo,
   },
   verticalTitleWrapper: {
     position: 'absolute',

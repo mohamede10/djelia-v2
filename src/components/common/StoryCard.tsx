@@ -58,6 +58,7 @@ export const StoryCard = React.memo(function StoryCard({ story, onPress }: Props
           onPress={() => toggleFavorite(story.id)}
           accessibilityRole="button"
           accessibilityLabel={isFavorite ? `Retirer ${story.title} des favoris` : `Ajouter ${story.title} aux favoris`}
+          accessibilityState={{ selected: isFavorite }}
         >
           <Text style={styles.favoriteIcon}>{isFavorite ? '♥' : '♡'}</Text>
         </TouchableOpacity>
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
   readMore: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 10,
-    color: colors.gold,
+    color: colors.primary,
     letterSpacing: 1,
   },
 });

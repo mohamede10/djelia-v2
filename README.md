@@ -52,6 +52,12 @@ modification nécessite un redéploiement.
   n'ont pas encore d'enregistrement de griot
 - Favoris synchronisés avec Firestore et mis en cache localement
 - Images mises en cache mémoire/disque (`expo-image`) avec visuel de secours
+- **Mode hors-ligne** : le catalogue reçu de Firestore est enregistré sur
+  l'appareil (`AsyncStorage`), réaffiché instantanément au lancement puis
+  rafraîchi en arrière-plan ; une bannière « Hors ligne » signale clairement
+  que les données proviennent du cache local
+- Cache mémoire de 5 minutes pour le catalogue : la recherche ne relit pas les
+  50 documents Firestore à chaque frappe
 
 ### Profil
 - Consultation et modification du nom et de la photo de profil
@@ -74,7 +80,8 @@ modification nécessite un redéploiement.
 - Compteur de résultats annoncé aux lecteurs d'écran (`accessibilityLiveRegion`)
 - États vides et menus du profil annoncés avec rôle, libellé et état désactivé
 - Onglets de navigation dotés de libellés dédiés (`tabBarAccessibilityLabel`)
-- Contrastes et tailles de police alignés sur le thème Djelia
+- Titres d'écran annoncés comme en-têtes (`accessibilityRole="header"`)
+- Petits textes à contraste renforcé : vert profond au lieu de l'or sur fond clair
 
 ### Robustesse
 - **ErrorBoundary** global : toute erreur de rendu affiche un écran de secours
@@ -542,6 +549,9 @@ eas build --platform ios --profile production
 
 ## 8. État d'avancement MVP
 
+> Audit détaillé, exigence par exigence, dans
+> [`docs/conformite-cahier-des-charges.md`](docs/conformite-cahier-des-charges.md).
+
 - [x] Setup Expo / TypeScript / thème Djelia
 - [x] Splash animé, onboarding 3 écrans, persistance de l'onboarding
 - [x] Page d'accueil publique (objectif de Djelia, bouton Connexion, création de compte)
@@ -552,6 +562,10 @@ eas build --platform ios --profile production
 - [x] Détail de récit + lecteur audio + narration vocale de secours
 - [x] Pagination de la recherche (20 récits par page)
 - [x] Favoris Firestore + cache local hors-ligne
+- [x] Catalogue hors-ligne : cache `AsyncStorage`, affichage immédiat, bannière explicite
+- [x] Cache mémoire du catalogue (5 min) pour limiter les lectures Firestore
+- [x] Règles Firestore durcies (profils privés, validation des champs, intégrité des favoris)
+- [x] Index composites Firestore (`firestore.indexes.json`)
 - [x] Rafraîchissement manuel (pull-to-refresh) et états vides partagés
 - [x] Profil + édition du nom et des langues
 - [x] Photo de profil (galerie + recadrage, Storage Firebase ou stockage local)
@@ -595,5 +609,3 @@ eas build --platform ios --profile production
 ## 10. Licence
 
 Projet Djelia — Hackathon Ansuten. Tous droits réservés.
-#   d j e l i a - v 2  
- 

@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserProfile } from './authService';
+import type { Story } from '../data/stories';
 
 /**
  * Petit service de stockage local, utilisé pour :
@@ -138,4 +140,75 @@ export const readLocalBookFavorites = async (userId: string): Promise<string[]> 
 
 export const writeLocalBookFavorites = async (userId: string, bookIds: string[]): Promise<void> => {
   await writeValue(bookFavoritesKey(userId), JSON.stringify(bookIds));
+};
+
+// --- Catalogue hors-ligne (cahier des charges § 5.5 « Offline-first ») ---
+
+/**
+ * Le catalogue complet (50 récits et leur texte) dépasse largement la limite
+ * d'environ 2 Ko par entrée d'Expo SecureStore : on utilise donc AsyncStorage,
+ * qui accepte des valeurs volumineuses et fonctionne aussi sur le web.
+ */
+const CATALOGUE_CACHE_KEY = 'djelia_catalogue_cache_v1';
+
+export type CachedCatalogue = {
+  /** Horodatage de l'enregistrement, en millisecondes. */
+  savedAt: number;
+  stories: Story[];
+};
+
+/**
+ * Les fichiers audio embarqués sont des assets Metro (`require`) : leur valeur
+ * n'est pas sérialisable. On ne met donc en cache que les champs texte, puis
+ * `dataService` réassocie l'audio local à la lecture.
+ */
+export const toCacheableStories = (stories: Story[]): Story[] =>
+  stories.map(({ audioUrl, ...story }) => story as Story);
+
+export const readCachedCatalogue = async (): Promise<CachedCatalogue | null> => {
+  try {
+    const raw = await AsyncStorage.getItem(CATALOGUE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      typeof parsed.savedAt !== 'number' ||
+      !Array.isArray(parsed.stories)
+    ) {
+      return null;
+    }
+    const stories = parsed.stories.filter(
+      (story: unknown): story is Story =>
+        !!story &&
+        typeof story === 'object' &&
+        typeof (story as Story).id === 'string' &&
+        typeof (story as Story).title === 'string'
+    );
+    return stories.length > 0 ? { savedAt: parsed.savedAt, stories } : null;
+  } catch {
+    return null;
+  }
+};
+
+export const writeCachedCatalogue = async (stories: Story[]): Promise<void> => {
+  if (stories.length === 0) return;
+  try {
+    const payload: CachedCatalogue = {
+      savedAt: Date.now(),
+      stories: toCacheableStories(stories),
+    };
+    await AsyncStorage.setItem(CATALOGUE_CACHE_KEY, JSON.stringify(payload));
+  } catch {
+    // Cache indisponible (quota, navigation privée) : l'application continue
+    // avec le catalogue embarqué.
+  }
+};
+
+export const clearCachedCatalogue = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(CATALOGUE_CACHE_KEY);
+  } catch {
+    // Rien à faire.
+  }
 };

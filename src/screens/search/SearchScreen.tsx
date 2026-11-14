@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 10,
-    color: colors.gold,
+    color: colors.primary,
     letterSpacing: 2,
     marginBottom: 5,
   },

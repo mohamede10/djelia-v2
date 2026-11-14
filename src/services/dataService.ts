@@ -10,7 +10,12 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../config/firebase';
-import { readLocalFavorites, writeLocalFavorites } from './storageService';
+import {
+  readCachedCatalogue,
+  readLocalFavorites,
+  writeCachedCatalogue,
+  writeLocalFavorites,
+} from './storageService';
 
 import { INITIAL_STORIES, type Story } from '../data/stories';
 
@@ -78,30 +83,103 @@ export const resolveCategoryFilter = (value?: string): string => {
  * Récupère la liste des histoires (Firestore avec fallback local instantané)
  */
 export const getStories = async (): Promise<Story[]> => {
-  if (isFirebaseConfigured) {
-    try {
-      const storiesCol = collection(db, 'stories');
-      const snapshot = await getDocs(storiesCol);
-      if (!snapshot.empty) {
-        const stories: Story[] = [];
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data() as Omit<Story, 'id'>;
-          // Les fichiers audio locaux ne sont pas stockés dans Firestore :
-          // on récupère celui du catalogue local pour conserver la narration.
-          const localStory = LOCAL_STORIES.find((story) => story.id === docSnap.id);
-          stories.push({
-            id: docSnap.id,
-            ...data,
-            audioUrl: data.audioUrl || localStory?.audioUrl,
-          });
-        });
-        return stories;
-      }
-    } catch (e) {
-      console.warn("Firestore stories fetch error, using local fallback:", e);
+  const { stories } = await getCatalogue();
+  return stories;
+};
+
+/** Origine des données affichées : utile pour signaler un mode hors-ligne. */
+export type CatalogueSource = 'firestore' | 'cache' | 'local';
+
+export type Catalogue = {
+  stories: Story[];
+  source: CatalogueSource;
+  /** Vrai quand les données ne viennent pas du serveur alors qu'il est configuré. */
+  degraded: boolean;
+  /** Date d'enregistrement du cache, si `source === 'cache'`. */
+  savedAt?: number;
+};
+
+/**
+ * Cache mémoire : la recherche est relancée à chaque frappe (avec anti-rebond),
+ * et sans ce cache chaque requête relirait les 50 documents Firestore. Le
+ * cahier des charges impose une réponse < 500 ms et surveille les quotas.
+ */
+const MEMORY_TTL_MS = 5 * 60 * 1000;
+let memoryCatalogue: { at: number; catalogue: Catalogue } | null = null;
+
+const readFromFirestore = async (): Promise<Story[] | null> => {
+  if (!isFirebaseConfigured) return null;
+  try {
+    const storiesCol = collection(db, 'stories');
+    const snapshot = await getDocs(storiesCol);
+    if (snapshot.empty) return null;
+
+    const stories: Story[] = [];
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data() as Omit<Story, 'id'>;
+      // Les fichiers audio locaux ne sont pas stockés dans Firestore :
+      // on récupère celui du catalogue local pour conserver la narration.
+      const localStory = LOCAL_STORIES.find((story) => story.id === docSnap.id);
+      stories.push({
+        id: docSnap.id,
+        ...data,
+        audioUrl: data.audioUrl || localStory?.audioUrl,
+      });
+    });
+    return stories;
+  } catch (e) {
+    console.warn('Firestore stories fetch error, using cached/local fallback:', e);
+    return null;
+  }
+};
+
+/**
+ * Charge le catalogue : Firestore si possible, sinon le dernier catalogue
+ * enregistré sur l'appareil, sinon le catalogue embarqué dans l'application.
+ */
+export const getCatalogue = async (options: { force?: boolean } = {}): Promise<Catalogue> => {
+  if (!options.force && memoryCatalogue && Date.now() - memoryCatalogue.at < MEMORY_TTL_MS) {
+    return memoryCatalogue.catalogue;
+  }
+
+  let catalogue: Catalogue;
+
+  const remote = await readFromFirestore();
+  if (remote) {
+    // Best effort : le cache sert au prochain démarrage hors connexion.
+    await writeCachedCatalogue(remote);
+    catalogue = { stories: remote, source: 'firestore', degraded: false };
+  } else {
+    const cached = await readCachedCatalogue();
+    if (cached) {
+      catalogue = {
+        stories: cached.stories.map(withBundledAudio),
+        source: 'cache',
+        degraded: true,
+        savedAt: cached.savedAt,
+      };
+    } else {
+      catalogue = {
+        stories: LOCAL_STORIES,
+        source: 'local',
+        degraded: isFirebaseConfigured,
+      };
     }
   }
-  return LOCAL_STORIES;
+
+  memoryCatalogue = { at: Date.now(), catalogue };
+  return catalogue;
+};
+
+/** Catalogue déjà enregistré, sans accès réseau : affichage immédiat. */
+export const getCachedStories = async (): Promise<Story[]> => {
+  const cached = await readCachedCatalogue();
+  return cached ? cached.stories.map(withBundledAudio) : [];
+};
+
+/** Force la prochaine lecture à interroger Firestore (pull-to-refresh). */
+export const invalidateCatalogue = (): void => {
+  memoryCatalogue = null;
 };
 
 /**
@@ -180,8 +258,13 @@ export const getStoryById = async (id: string): Promise<Story | undefined> => {
         };
       }
     } catch (e) {
-      console.warn("Firestore getStoryById error:", e);
+      console.warn('Firestore getStoryById error:', e);
     }
+
+    // Hors connexion : le récit reste consultable s'il a déjà été mis en cache.
+    const cached = await readCachedCatalogue();
+    const cachedStory = cached?.stories.find((story) => story.id === id);
+    if (cachedStory) return withBundledAudio(cachedStory);
   }
   return LOCAL_STORIES.find(s => s.id === id);
 };

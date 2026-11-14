@@ -3,7 +3,9 @@ import {
   STORY_CATEGORY_FILTERS,
   STORY_ETHNIC_GROUPS,
   STORY_REGIONS,
+  getCatalogue,
   getStoryById,
+  invalidateCatalogue,
   normalizeForSearch,
   resolveCategoryFilter,
   searchStories,
@@ -30,6 +32,8 @@ jest.mock('../../config/firebase', () => ({
 jest.mock('../storageService', () => ({
   readLocalFavorites: jest.fn(async () => []),
   writeLocalFavorites: jest.fn(async () => undefined),
+  readCachedCatalogue: jest.fn(async () => null),
+  writeCachedCatalogue: jest.fn(async () => undefined),
 }));
 
 const CATEGORIES = ['Conte', 'Fable', 'Proverbe', 'Coutume'];
@@ -153,5 +157,30 @@ describe('getStoryById', () => {
 
   it('retourne undefined pour un identifiant inconnu', async () => {
     expect(await getStoryById('9999')).toBeUndefined();
+  });
+});
+
+describe('getCatalogue', () => {
+  it('utilise le catalogue embarqué quand Firebase n’est pas configuré', async () => {
+    invalidateCatalogue();
+    const catalogue = await getCatalogue({ force: true });
+    expect(catalogue.source).toBe('local');
+    expect(catalogue.degraded).toBe(false);
+    expect(catalogue.stories.length).toBe(INITIAL_STORIES.length);
+  });
+
+  it('mémorise le résultat entre deux appels (cache mémoire)', async () => {
+    invalidateCatalogue();
+    const first = await getCatalogue({ force: true });
+    const second = await getCatalogue();
+    expect(second).toBe(first);
+  });
+
+  it('relit le catalogue après invalidation (pull-to-refresh)', async () => {
+    const first = await getCatalogue();
+    invalidateCatalogue();
+    const second = await getCatalogue();
+    expect(second).not.toBe(first);
+    expect(second.stories.length).toBe(first.stories.length);
   });
 });

@@ -26,7 +26,7 @@ export const ScreenHeader = ({ title, subtitle, rightElement, onBack }: Props) =
           </TouchableOpacity>
         )}
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.title} accessibilityRole="header">{title}</Text>
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
         {rightElement && <View style={styles.right}>{rightElement}</View>}
